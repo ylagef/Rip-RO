@@ -1,20 +1,18 @@
 import java.io.IOException;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import java.net.*;
+import java.util.Enumeration;
 
 public class Rip {
 
-    static String iplocal = null;
+    static InetAddress iplocal = null;
     static int puertolocal = 5512;
 
     public static void main(String[] args) throws IOException {
 
         configIP(args); //Lee y asigna la ip inicial dependiendo de argumentos o local
-        Servidor server = new Servidor(InetAddress.getByName(iplocal), puertolocal);
+        Servidor server = new Servidor(iplocal, puertolocal);
 
-        System.out.println("La IP y puerto locales son: " + iplocal + ":" + puertolocal);
+        System.out.println("La IP y puerto locales son: " + iplocal.getHostAddress() + ":" + puertolocal);
 
         /*
         ServerSocket sskt;
@@ -41,18 +39,30 @@ public class Rip {
     public static void configIP(String[] args) throws UnknownHostException, SocketException {
 
         if (args.length != 0) {
+
             String[] entrada = args[0].split(":");
-            iplocal = entrada[0];
+            iplocal = InetAddress.getByName(entrada[0]);
+
             if (entrada.length != 1) {
                 puertolocal = Integer.parseInt(entrada[1]);
             }
+
         } else {
 
-            iplocal = Inet4Address.getLocalHost().getHostAddress();
+            Enumeration<InetAddress> IPs = null;
 
-            //FALTA COMPROBAR QUE SEA ETH0
+            IPs = NetworkInterface.getByName("eth0").getInetAddresses();
+
+            assert IPs != null;
+
+            while (IPs.hasMoreElements()) {
+                if (IPs.nextElement() instanceof Inet4Address) {
+                    iplocal = IPs.nextElement();
+                    break;
+                }
+            }
 
         }
-    }
 
+    }
 }
