@@ -3,20 +3,21 @@ import java.net.InetAddress;
 public class Host {
 
 
-    private InetAddress IP;
+    TablaEncaminamiento tablaEnc;
+    private InetAddress ip;
     private int puerto = 5512;
 
-    public Host(InetAddress IP, int puerto) {
-        this.IP = IP;
+    public Host(InetAddress ip, int puerto) {
+        this.ip = ip;
         this.puerto = puerto;
     }
 
-    public InetAddress getIP() {
-        return IP;
+    public InetAddress getIp() {
+        return ip;
     }
 
     public void setIP(InetAddress iP) {
-        IP = iP;
+        ip = ip;
     }
 
     public int getPuerto() {
@@ -26,6 +27,5 @@ public class Host {
     public void setPuerto(int puerto) {
         this.puerto = puerto;
     }
-
 
 }

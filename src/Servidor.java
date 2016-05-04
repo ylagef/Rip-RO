@@ -1,79 +1,87 @@
-import java.io.FileInputStream;
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.StringTokenizer;
 
 public class Servidor {
-    public static String Fichero;
 
-    public static void main(String[] args) {
+    /*Esta clase servidor crea un servidor en el host del que se le dice la ip
+    y en este lee su fichero de configuración, crea el ArrayList de los vecinos
+    e inicia el envío de la tabla.
+     */
 
-        ArrayList<Host> listaVecinos = new ArrayList<Host>();
+    String Fichero;
+    InetAddress iplocal;
+    int puerto;
+    ArrayList<Host> listaVecinos = new ArrayList<>();
 
-        Scanner fichero = LeerFichero(Fichero);
+    public Servidor(InetAddress iplocal, int puerto) throws IOException {
 
-        try {
-            String[] linea = null;
-            int puerto;
-            InetAddress direc = null;
+        this.iplocal = iplocal;
+        this.puerto = puerto;
 
-            while (fichero.hasNextLine()) {
+        procesarConfiguracion();
 
-                if (fichero.nextLine().contains(":")) {
-                    linea = fichero.nextLine().trim().split(":");
-                } else if (fichero.nextLine().contains("/")) {
-                    linea = fichero.nextLine().trim().split("/");
-                }
-
-                try {
-                    direc = InetAddress.getByName(linea[0]);
-                } catch (UnknownHostException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-
-                if (!linea[1].isEmpty())
-                    puerto = Integer.parseInt(linea[1]);
-                else
-                    puerto = 5512;
-
-                listaVecinos.add(new Host(direc, puerto));
-
-
-            }
-
-        } catch (StringIndexOutOfBoundsException e) {
-            System.err
-                    .println("1.- No se pudo leer el fichero ejecucion (formato incorrecto)\n"
-                            + e);
-        } catch (NumberFormatException e) {
-            System.err
-                    .println("2.- No se pudo leer el fichero ejecucion (formato incorrecto)\n"
-                            + e);
-        } catch (IndexOutOfBoundsException e) {
-            System.err
-                    .println("3.- No se pudo leer el fichero ejecucion (formato incorrecto)\n"
-                            + e);
+        for (int i = 0; i < listaVecinos.size(); i++) {
+            System.out.println("Vecino " + i + " " + listaVecinos.get(i).getIp() + " " + listaVecinos.get(i).getPuerto());
         }
-
-        fichero.close();
 
     }
 
-    public static Scanner LeerFichero(String fichero) {
+    private void procesarConfiguracion() throws IOException {
 
-        Scanner lectura = null;
+        String linea, info;
+        String ficheroConf = "ripconf-" + iplocal.getHostAddress() + ".txt";
+        FileReader fr = null;
+
         try {
-
-            lectura = new Scanner(new FileInputStream(fichero));
-
+            fr = new FileReader(ficheroConf);
         } catch (FileNotFoundException e) {
-            System.err.println("Fichero Inexistente <" + fichero + ">");
-            System.exit(-1);
+            e.printStackTrace();
         }
-        return lectura;
+
+        BufferedReader br = new BufferedReader(fr);
+
+        while ((linea = br.readLine()) != null) {
+
+            StringTokenizer st = new StringTokenizer(linea);
+
+            while (st.hasMoreTokens()) {
+
+                String[] lineaInfo = new String[0];
+
+                info = st.nextToken();
+
+                if (info.contains(":") || info.contains("/")) {
+                    if (info.contains(":")) {
+
+                        lineaInfo = info.split(":");
+
+                    } else if (info.contains("/")) {
+
+                        lineaInfo = info.split("/");
+
+                    }
+
+                    String ipAux = lineaInfo[0];
+                    String puertoAux = lineaInfo[1];
+                    Host vecino = new Host(InetAddress.getByName(ipAux), Integer.parseInt(puertoAux));
+                    listaVecinos.add(vecino);
+
+                } else {
+
+                    String ipAux = info;
+                    String puertoAux = "5512";
+                    Host vecino = new Host(InetAddress.getByName(ipAux), Integer.parseInt(puertoAux));
+                    listaVecinos.add(vecino);
+
+                }
+            }
+        }
     }
 
 }
+
