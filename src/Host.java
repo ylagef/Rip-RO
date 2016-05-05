@@ -1,9 +1,10 @@
 import java.net.InetAddress;
+import java.util.ArrayList;
 
 public class Host {
 
-
-    TablaEncaminamiento tablaEnc;
+    private ArrayList<Host> listaVecinos;
+    private TablaEncaminamiento tablaEnc;
     private InetAddress ip;
     private int puerto = 5512;
 

@@ -10,13 +10,11 @@ public class Rip {
     public static void main(String[] args) throws IOException {
 
         configIP(args); //Lee y asigna la ip inicial dependiendo de argumentos o local
-        Servidor server = new Servidor(iplocal, puertolocal);
 
-        System.out.println("La IP y puerto locales son: " + iplocal.getHostAddress() + ":" + puertolocal);
+        Servidor server = new Servidor(iplocal, puertolocal);
 
         /*
         ServerSocket sskt;
-
         try {
             sskt = new ServerSocket(puertolocal);
             System.out.println("Escuchando en el puerto: " + puertolocal);
@@ -28,7 +26,6 @@ public class Rip {
                 flujo.writeUTF("Hola cliente, soy el servidor del host: " + iplocal);
                 cskt.close();
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -49,19 +46,24 @@ public class Rip {
 
         } else {
 
-            Enumeration<InetAddress> IPs = null;
-
-            IPs = NetworkInterface.getByName("eth0").getInetAddresses();
-
-            assert IPs != null;
-
-            while (IPs.hasMoreElements()) {
-                if (IPs.nextElement() instanceof Inet4Address) {
-                    iplocal = IPs.nextElement();
-                    break;
+            Enumeration en = NetworkInterface.getNetworkInterfaces();
+            while (en.hasMoreElements()) {
+                NetworkInterface i = (NetworkInterface) en.nextElement();
+                if (i.getName().contains("wlan2")) {
+                    for (Enumeration en2 = i.getInetAddresses(); en2.hasMoreElements(); ) {
+                        InetAddress addr = (InetAddress) en2.nextElement();
+                        if (!addr.isLoopbackAddress()) {
+                            if (addr instanceof Inet4Address) {
+                                iplocal = addr;
+                                return;
+                            }
+                        }
+                    }
                 }
             }
 
+            System.out.printf("NO EXISTE ETH0");
+            System.exit(-1);
         }
 
     }
