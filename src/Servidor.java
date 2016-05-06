@@ -8,15 +8,15 @@ import java.util.StringTokenizer;
 
 public class Servidor {
 
-    /*Esta clase servidor crea un servidor en el host del que se le dice la ip
+    /*Esta clase servidor crea un servidor en el Router del que se le dice la ip
     y en este lee su fichero de configuración, crea el ArrayList de los vecinos
     e inicia el envío de la tabla.
      */
 
-    String Fichero;
     InetAddress iplocal;
     int puerto;
-    ArrayList<Host> listaVecinos = new ArrayList<>();
+    ArrayList<Router> listaVecinos = new ArrayList<>();
+    TablaEncaminamiento tablaEncaminamiento = new TablaEncaminamiento();
 
     public Servidor(InetAddress iplocal, int puerto) throws IOException {
 
@@ -28,6 +28,8 @@ public class Servidor {
         for (int i = 0; i < listaVecinos.size(); i++) {
             System.out.println("Vecino " + i + " " + listaVecinos.get(i).getIp() + " " + listaVecinos.get(i).getPuerto());
         }
+
+        tablaEncaminamiento.imprimirTabla();
 
     }
 
@@ -47,37 +49,37 @@ public class Servidor {
 
         while ((linea = br.readLine()) != null) {
 
-            StringTokenizer st = new StringTokenizer(linea);
+            if (!linea.startsWith("//")) { //Para saltarse los comentarios en el fichero de configuracion
 
-            while (st.hasMoreTokens()) {
+                StringTokenizer st = new StringTokenizer(linea);
 
-                String[] lineaInfo = new String[0];
+                while (st.hasMoreTokens()) {
 
-                info = st.nextToken();
+                    String[] lineaInfo = new String[0];
 
-                if (info.contains(":") || info.contains("/")) {
-                    if (info.contains(":")) {
+                    info = st.nextToken();
+                    if (info.contains(":") || info.contains("/")) {
+                        if (info.contains(":")) {
+                            lineaInfo = info.split(":");
+                            String ipAux = lineaInfo[0];
+                            String puertoAux = lineaInfo[1];
+                            Router vecino = new Router(InetAddress.getByName(ipAux), Integer.parseInt(puertoAux));
+                            listaVecinos.add(vecino);
 
-                        lineaInfo = info.split(":");
-
-                    } else if (info.contains("/")) {
-
-                        lineaInfo = info.split("/");
+                        } else if (info.contains("/")) {
+                            lineaInfo = info.split("/");
+                            String ipAux = lineaInfo[0];
+                            String mascara = lineaInfo[1];
+                            Encaminamiento encaminamiento = new Encaminamiento(InetAddress.getByName(ipAux), Integer.parseInt(mascara));
+                            tablaEncaminamiento.put(InetAddress.getByName(ipAux), encaminamiento);
+                        }
+                    } else {
+                        String ipAux = info;
+                        String puertoAux = "5512";
+                        Router vecino = new Router(InetAddress.getByName(ipAux), Integer.parseInt(puertoAux));
+                        listaVecinos.add(vecino);
 
                     }
-
-                    String ipAux = lineaInfo[0];
-                    String puertoAux = lineaInfo[1];
-                    Host vecino = new Host(InetAddress.getByName(ipAux), Integer.parseInt(puertoAux));
-                    listaVecinos.add(vecino);
-
-                } else {
-
-                    String ipAux = info;
-                    String puertoAux = "5512";
-                    Host vecino = new Host(InetAddress.getByName(ipAux), Integer.parseInt(puertoAux));
-                    listaVecinos.add(vecino);
-
                 }
             }
         }

@@ -1,14 +1,14 @@
 import java.net.InetAddress;
 import java.util.ArrayList;
 
-public class Host {
+public class Router {
 
-    private ArrayList<Host> listaVecinos;
+    private ArrayList<InetAddress> listaVecinos;
     private TablaEncaminamiento tablaEnc;
     private InetAddress ip;
     private int puerto = 5512;
 
-    public Host(InetAddress ip, int puerto) {
+    public Router(InetAddress ip, int puerto) {
         this.ip = ip;
         this.puerto = puerto;
     }
