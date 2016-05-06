@@ -1,6 +1,6 @@
 import java.net.InetAddress;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * Created by Yeray on 04/05/2016.
@@ -11,7 +11,7 @@ public class TablaEncaminamiento {
     getters y setters que el Router utiliza para comparar y procesar.
      */
 
-    private static TreeMap<String, Encaminamiento> tabla = new TreeMap<>();
+    private static HashMap<String, Encaminamiento> tabla = new HashMap<>();
 
     public void put(InetAddress direccion, Encaminamiento encaminamiento) {
         String dir = direccion.getHostAddress();

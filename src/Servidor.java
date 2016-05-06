@@ -13,27 +13,22 @@ public class Servidor {
     e inicia el envío de la tabla.
      */
 
-    InetAddress iplocal;
-    int puerto;
-    ArrayList<Router> listaVecinos = new ArrayList<>();
-    TablaEncaminamiento tablaEncaminamiento = new TablaEncaminamiento();
+    private InetAddress iplocal;
+    private int puerto;
+    private ArrayList<Router> listaVecinos = new ArrayList<>();
+    private TablaEncaminamiento tablaEncaminamiento = new TablaEncaminamiento();
 
     public Servidor(InetAddress iplocal, int puerto) throws IOException {
-
         this.iplocal = iplocal;
         this.puerto = puerto;
 
-        procesarConfiguracion();
+        procesarFicheroConfiguracion();
+        probarTablas();
 
-        for (int i = 0; i < listaVecinos.size(); i++) {
-            System.out.println("Vecino " + i + " " + listaVecinos.get(i).getIp() + " " + listaVecinos.get(i).getPuerto());
-        }
-
-        tablaEncaminamiento.imprimirTabla();
 
     }
 
-    private void procesarConfiguracion() throws IOException {
+    private void procesarFicheroConfiguracion() throws IOException {
 
         String linea, info;
         String ficheroConf = "ripconf-" + iplocal.getHostAddress() + ".txt";
@@ -55,10 +50,12 @@ public class Servidor {
 
                 while (st.hasMoreTokens()) {
 
-                    String[] lineaInfo = new String[0];
+                    String[] lineaInfo;
 
                     info = st.nextToken();
+
                     if (info.contains(":") || info.contains("/")) {
+
                         if (info.contains(":")) {
                             lineaInfo = info.split(":");
                             String ipAux = lineaInfo[0];
@@ -73,6 +70,7 @@ public class Servidor {
                             Encaminamiento encaminamiento = new Encaminamiento(InetAddress.getByName(ipAux), Integer.parseInt(mascara));
                             tablaEncaminamiento.put(InetAddress.getByName(ipAux), encaminamiento);
                         }
+
                     } else {
                         String ipAux = info;
                         String puertoAux = "5512";
@@ -83,6 +81,18 @@ public class Servidor {
                 }
             }
         }
+    }
+
+    public void probarTablas() {
+
+        for (int i = 0; i < listaVecinos.size(); i++) {
+            System.out.println("Vecino " + i + " " + listaVecinos.get(i).getIp() + " puerto: " + listaVecinos.get(i).getPuerto());
+        }
+
+        System.out.println();
+
+        tablaEncaminamiento.imprimirTabla();
+
     }
 
 }

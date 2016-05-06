@@ -5,7 +5,7 @@ En el fichero de configuracion de MI router.
 
     E.F.G.H/len Se refiere a las SUBREDES que tengo DIRECTAMENTE conectadas (dist 1).
         Son las que incorporo a mi tabla con la forma:
-        [ HACIA E.F.G.H/len | DISTANCIA 1 | POR MÍ].
+        [ HACIA E.F.G.H/len | DISTANCIA 1 | POR MÍ ].
 
 La tabla de encaminamiento es de la forma:
 

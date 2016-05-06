@@ -12,26 +12,7 @@ public class Rip {
         configIP(args); //Lee y asigna la ip inicial dependiendo de argumentos o local
 
         Servidor server = new Servidor(iplocal, puertolocal);
-
-        /*
-        ServerSocket sskt;
-        try {
-            sskt = new ServerSocket(puertolocal);
-            System.out.println("Escuchando en el puerto: " + puertolocal);
-            while (true) {
-                Socket cskt = sskt.accept(); //Creamos el socket de conexion con el cliente
-                System.out.print("Atendiendo al cliente: " + cskt.getInetAddress());
-                OutputStream os = cskt.getOutputStream();
-                DataOutputStream flujo = new DataOutputStream(os);
-                flujo.writeUTF("Hola cliente, soy el servidor del host: " + iplocal);
-                cskt.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-*/
     }
-
 
     public static void configIP(String[] args) throws UnknownHostException, SocketException {
 
@@ -67,4 +48,5 @@ public class Rip {
         }
 
     }
+
 }
