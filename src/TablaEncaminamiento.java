@@ -29,5 +29,9 @@ public class TablaEncaminamiento {
             System.out.println(e.getValue().toString());
         }
     }
+
+    public int size() {
+        return tabla.size();
+    }
 }
 

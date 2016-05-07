@@ -12,5 +12,22 @@ public class Emisor implements Runnable {
     @Override
     public void run() {
 
+        while (true) {
+            Servidor.envioUnicast(mensajeActualizado());
+            synchronized (this) {
+                try {
+                    wait(2000);
+                } catch (InterruptedException e) {
+                }
+            }
+        }
+    }
+
+    private Paquete mensajeActualizado() {
+        System.out.println("*********** Enviando tabla... ***********");
+        System.out.println("***********      Estado:      ***********");
+        tablaEncaminamiento.imprimirTabla();
+        Paquete p = new Paquete(Comando.RESPONSE, tablaEncaminamiento.size());
+        return p;
     }
 }

@@ -6,6 +6,19 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+enum Comando {
+
+    //Los tipos de comandos sirven para especificar el propósito del mensaje.
+
+    REQUEST(1), RESPONSE(2);
+
+    public final int valor;
+
+    Comando(int valor) {
+        this.valor = valor;
+    }
+}
+
 public class Servidor {
 
     /*Esta clase servidor crea un servidor en el Router del que se le dice la ip
@@ -13,25 +26,30 @@ public class Servidor {
     e inicia el envío de la tabla.
      */
 
-    private InetAddress iplocal;
+    private InetAddress ipLocal;
     private int puerto;
     private ArrayList<Router> listaVecinos = new ArrayList<>();
     private TablaEncaminamiento tablaEncaminamiento = new TablaEncaminamiento();
 
-    public Servidor(InetAddress iplocal, int puerto) throws IOException {
-        this.iplocal = iplocal;
+    public Servidor(InetAddress ipLocal, int puerto) throws IOException {
+        this.ipLocal = ipLocal;
         this.puerto = puerto;
 
         procesarFicheroConfiguracion();
-        probarTablas();
 
+        Emisor e = new Emisor(tablaEncaminamiento);
+        e.run();
+
+    }
+
+    public static void envioUnicast(Paquete paquete) {
 
     }
 
     private void procesarFicheroConfiguracion() throws IOException {
 
         String linea, info;
-        String ficheroConf = "ripconf-" + iplocal.getHostAddress() + ".txt";
+        String ficheroConf = "ripconf-" + ipLocal.getHostAddress() + ".txt";
         FileReader fr = null;
 
         try {
@@ -94,6 +112,5 @@ public class Servidor {
         tablaEncaminamiento.imprimirTabla();
 
     }
-
 }
 

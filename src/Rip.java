@@ -12,6 +12,7 @@ public class Rip {
         configIP(args); //Lee y asigna la ip inicial dependiendo de argumentos o local
 
         Servidor server = new Servidor(iplocal, puertolocal);
+        server.probarTablas();
     }
 
     public static void configIP(String[] args) throws UnknownHostException, SocketException {
@@ -26,6 +27,8 @@ public class Rip {
             }
 
         } else {
+
+            //TODO Hay que probar esta funcion en los ordenadores del laboratorio, no es seguro que funcione.
 
             Enumeration en = NetworkInterface.getNetworkInterfaces();
             while (en.hasMoreElements()) {
@@ -45,6 +48,7 @@ public class Rip {
 
             System.out.printf("NO EXISTE ETH0");
             System.exit(-1);
+
         }
 
     }
