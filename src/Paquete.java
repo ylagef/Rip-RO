@@ -21,9 +21,8 @@ public class Paquete {
         //Cabecera del paquete (ocupa 4 bytes).
         datos.put((byte) c.valor); //Tipo de comando
         datos.put((byte) 2); //Version RIP
-        datos.put((byte) 0); //Se pone siempre a 0
-        datos.put((byte) 0); //Siempre a 0
-
+        datos.put((byte) 0); //No usado
+        datos.put((byte) 0); //No usado
     }
 
     void addEncaminamiento(Encaminamiento e) {
