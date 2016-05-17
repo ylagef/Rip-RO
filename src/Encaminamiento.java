@@ -1,4 +1,5 @@
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 
 /**
@@ -6,6 +7,13 @@ import java.nio.ByteBuffer;
  */
 public class Encaminamiento {
 
+    //Para facilitar el método toString
+    private InetAddress direccionString;
+    private InetAddress siguienteString;
+    private int mascaraString;
+    private int distanciaString;
+
+    //Para crear correctamente el paquete de bytes
     private byte[] direccion;
     private byte[] mascara;
     private byte[] siguiente;
@@ -13,40 +21,49 @@ public class Encaminamiento {
 
     //Este constructor es para las subredes directamente conectadas (distancia 1).
     public Encaminamiento(InetAddress direccion, int mascara) {
+        direccionString = direccion;
+        mascaraString = mascara;
+
+
         ByteBuffer dirB = ByteBuffer.allocate(4);
-        dirB.putInt(Integer.parseInt(direccion.getHostName()));
+        dirB.put(direccion.getAddress());
         this.direccion = dirB.array();
 
         ByteBuffer mascaraB = ByteBuffer.allocate(4);
-        mascaraB.putInt(mascara);
+        mascaraB.put((byte) mascara);
         this.mascara = mascaraB.array();
 
         ByteBuffer distB = ByteBuffer.allocate(4);
-        distB.putInt(0);
-        distB.putInt(0);
-        distB.putInt(0);
-        distB.putInt(1);
+        distB.put((byte) 0);
+        distB.put((byte) 0);
+        distB.put((byte) 0);
+        distB.put((byte) 1);
         this.distancia = distB.array();
     }
 
     public Encaminamiento(InetAddress direccion, int mascara, Router siguiente, int distancia) {
+        direccionString = direccion;
+        distanciaString = distancia;
+        mascaraString = mascara;
+        siguienteString = siguiente.getIp();
+
         ByteBuffer dirB = ByteBuffer.allocate(4);
-        dirB.putInt(Integer.parseInt(direccion.getHostName()));
+        dirB.put(direccion.getAddress());
         this.direccion = dirB.array();
 
         ByteBuffer mascaraB = ByteBuffer.allocate(4);
-        mascaraB.putInt(mascara);
+        mascaraB.put((byte) mascara);
         this.mascara = mascaraB.array();
 
         ByteBuffer distB = ByteBuffer.allocate(4);
-        distB.putInt(0);
-        distB.putInt(0);
-        distB.putInt(0);
-        distB.putInt(distancia);
+        distB.put((byte) 0);
+        distB.put((byte) 0);
+        distB.put((byte) 0);
+        distB.put((byte) distancia);
         this.distancia = distB.array();
 
         ByteBuffer sigB = ByteBuffer.allocate(4);
-        sigB.putInt(Integer.parseInt(siguiente.getIp().getHostName()));
+        sigB.put(siguiente.getIp().getAddress());
         this.siguiente = sigB.array();
     }
 
@@ -54,42 +71,37 @@ public class Encaminamiento {
         return direccion;
     }
 
-    public void setDireccion(byte[] direccion) {
-        this.direccion = direccion;
-    }
-
     public byte[] getMascara() {
         return mascara;
     }
 
-    public void setMascara(byte[] mascara) {
-        this.mascara = mascara;
-    }
-
     public byte[] getSiguiente() {
-        return siguiente;
-    }
+        if (siguiente != null) {
+            return siguiente;
+        } else {
+            ByteBuffer sigB = ByteBuffer.allocate(4);
+            try {
+                sigB.put(InetAddress.getByName("0.0.0.0").getAddress());
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
+            return sigB.array();
+        }
 
-    public void setSiguiente(byte[] siguiente) {
-        this.siguiente = siguiente;
     }
 
     public byte[] getDistancia() {
         return distancia;
     }
 
-    public void setDistancia(byte[] distancia) {
-        this.distancia = distancia;
-    }
-
     @Override
     public String toString() {
 
         if (siguiente != null) {
-            return "[ " + direccion + "/" + mascara + " | " + distancia + " | " + siguiente + " ]";
+            return "[ " + direccionString.getHostName() + "/" + mascaraString + " | " + distanciaString + " | " + siguienteString.getCanonicalHostName() + " ]";
         }
 
-        return "[ " + direccion + "/" + mascara + " | " + distancia + " ]";
+        return "[ " + direccionString.getHostName() + "/" + mascaraString + " | " + distanciaString + " ]";
 
     }
 }

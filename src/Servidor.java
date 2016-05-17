@@ -2,7 +2,9 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
@@ -26,9 +28,10 @@ public class Servidor {
     e inicia el envío de la tabla.
      */
 
+    static DatagramSocket ds;
+    private static ArrayList<Router> listaVecinos = new ArrayList<>();
     private InetAddress ipLocal;
     private int puerto;
-    private ArrayList<Router> listaVecinos = new ArrayList<>();
     private TablaEncaminamiento tablaEncaminamiento = new TablaEncaminamiento();
 
     public Servidor(InetAddress ipLocal, int puerto) throws IOException {
@@ -38,12 +41,28 @@ public class Servidor {
         procesarFicheroConfiguracion();
 
         Emisor e = new Emisor(tablaEncaminamiento);
+        confPuerto(puerto);
         e.run();
     }
 
     public static void envioUnicast(Paquete paquete) {
+        for (Router destino : listaVecinos) {
+            try {
+                ds.send(paquete.getDatagramPacket(destino.getIp(), destino.getPuerto()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
 
+    }
+
+    void confPuerto(int puerto) {
+        try {
+            ds = new DatagramSocket(puerto);
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
     }
 
     private void procesarFicheroConfiguracion() throws IOException {

@@ -1,3 +1,5 @@
+import java.util.Map;
+
 /**
  * Created by Yeray on 06/05/2016.
  */
@@ -32,6 +34,10 @@ public class Emisor implements Runnable {
         System.out.println("***********      Estado:      ***********");
         tablaEncaminamiento.imprimirTabla();
         Paquete p = new Paquete(Comando.RESPONSE, tablaEncaminamiento.size());
+        for (Map.Entry<String, Encaminamiento> e : tablaEncaminamiento.getTabla().entrySet()) {
+            p.addEncaminamiento(e.getValue());
+        }
+
         return p;
     }
 }

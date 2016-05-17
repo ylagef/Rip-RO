@@ -1,3 +1,5 @@
+import java.net.DatagramPacket;
+import java.net.InetAddress;
 import java.nio.ByteBuffer;
 
 /**
@@ -62,6 +64,11 @@ public class Paquete {
         datos.put(23 + indice * 20, distancia[3]);
         indice++;                                           //La proxima vez empezará tras esta entrada y se concatenarán todas en el paquete.
 
+    }
+
+    DatagramPacket getDatagramPacket(InetAddress iPdestino, int puertoDestino) {
+        DatagramPacket dp = new DatagramPacket(datos.array(), datos.limit(), iPdestino, puertoDestino);
+        return dp;
     }
 
 }
