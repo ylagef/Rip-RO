@@ -26,8 +26,9 @@ public class TablaEncaminamiento {
         for (Map.Entry<String, Encaminamiento> e : tabla.entrySet()) {
             e.getKey();
             e.getValue();
-            System.out.println(e.getValue().toString());
+            System.out.println("        " + e.getValue().toString());
         }
+        System.out.print("\n");
     }
 
     public int size() {

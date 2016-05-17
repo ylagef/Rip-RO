@@ -39,33 +39,45 @@ public class Servidor {
         this.puerto = puerto;
 
         procesarFicheroConfiguracion();
-
-        Emisor e = new Emisor(tablaEncaminamiento);
         confPuerto(puerto);
-        e.run();
+        //probarTablas();                                         //Imprime las tablas para probar qué tienen.
+
+        while (true) {
+            Emisor e = new Emisor(tablaEncaminamiento);
+            e.run();
+
+            Receptor r = new Receptor(tablaEncaminamiento, ipLocal, puerto);
+            r.run();
+        }
     }
 
     public static void envioUnicast(Paquete paquete) {
         for (Router destino : listaVecinos) {
             try {
+                System.out.println("Enviando el paquete hacia: IP=" + destino.getIp().getHostAddress() + " puerto=" + destino.getPuerto());
                 ds.send(paquete.getDatagramPacket(destino.getIp(), destino.getPuerto()));
+                if (!ds.isConnected()) {
+                    System.out.println("    No conectado - No se ha realizado el envío.");
+                } else {
+                    System.out.println("    Envío completado.");
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-
-
     }
 
     void confPuerto(int puerto) {
         try {
-            ds = new DatagramSocket(puerto);
+            ds = new DatagramSocket(puerto); //TODO AQUI SE ABRE EL SOCKET DE ENVÍO
         } catch (SocketException e) {
             e.printStackTrace();
         }
     }
 
     private void procesarFicheroConfiguracion() throws IOException {
+
+        System.out.print("Leyendo fichero de configuración... ");
 
         String linea, info;
         String ficheroConf = "ripconf-" + ipLocal.getHostAddress() + ".txt";
@@ -118,6 +130,7 @@ public class Servidor {
                 }
             }
         }
+        System.out.print("Completado con éxito.\n\n");
     }
 
     public void probarTablas() {
