@@ -33,5 +33,12 @@ public class TablaEncaminamiento {
     public int size() {
         return tabla.size();
     }
+
+    //TODO ¿Se usa?
+    public HashMap<String, Encaminamiento> getTabla() {
+        return tabla;
+    }
+
+
 }
 

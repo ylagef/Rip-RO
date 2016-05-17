@@ -1,58 +1,84 @@
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
 
 /**
  * Created by Yeray on 06/05/2016.
  */
 public class Encaminamiento {
 
-    private InetAddress direccion;
-    private int mascara;
-    private Router siguiente;
-    private int distancia;
+    private byte[] direccion;
+    private byte[] mascara;
+    private byte[] siguiente;
+    private byte[] distancia;
 
     //Este constructor es para las subredes directamente conectadas (distancia 1).
     public Encaminamiento(InetAddress direccion, int mascara) {
-        this.direccion = direccion;
-        this.mascara = mascara;
-        this.distancia = 1;
+        ByteBuffer dirB = ByteBuffer.allocate(4);
+        dirB.putInt(Integer.parseInt(direccion.getHostName()));
+        this.direccion = dirB.array();
+
+        ByteBuffer mascaraB = ByteBuffer.allocate(4);
+        mascaraB.putInt(mascara);
+        this.mascara = mascaraB.array();
+
+        ByteBuffer distB = ByteBuffer.allocate(4);
+        distB.putInt(0);
+        distB.putInt(0);
+        distB.putInt(0);
+        distB.putInt(1);
+        this.distancia = distB.array();
     }
 
     public Encaminamiento(InetAddress direccion, int mascara, Router siguiente, int distancia) {
-        this.direccion = direccion;
-        this.mascara = mascara;
-        this.distancia = distancia;
-        this.siguiente = siguiente;
+        ByteBuffer dirB = ByteBuffer.allocate(4);
+        dirB.putInt(Integer.parseInt(direccion.getHostName()));
+        this.direccion = dirB.array();
+
+        ByteBuffer mascaraB = ByteBuffer.allocate(4);
+        mascaraB.putInt(mascara);
+        this.mascara = mascaraB.array();
+
+        ByteBuffer distB = ByteBuffer.allocate(4);
+        distB.putInt(0);
+        distB.putInt(0);
+        distB.putInt(0);
+        distB.putInt(distancia);
+        this.distancia = distB.array();
+
+        ByteBuffer sigB = ByteBuffer.allocate(4);
+        sigB.putInt(Integer.parseInt(siguiente.getIp().getHostName()));
+        this.siguiente = sigB.array();
     }
 
-    public InetAddress getDireccion() {
+    public byte[] getDireccion() {
         return direccion;
     }
 
-    public void setDireccion(InetAddress direccion) {
+    public void setDireccion(byte[] direccion) {
         this.direccion = direccion;
     }
 
-    public int getMascara() {
+    public byte[] getMascara() {
         return mascara;
     }
 
-    public void setMascara(int mascara) {
+    public void setMascara(byte[] mascara) {
         this.mascara = mascara;
     }
 
-    public Router getSiguiente() {
+    public byte[] getSiguiente() {
         return siguiente;
     }
 
-    public void setSiguiente(Router siguiente) {
+    public void setSiguiente(byte[] siguiente) {
         this.siguiente = siguiente;
     }
 
-    public int getDistancia() {
+    public byte[] getDistancia() {
         return distancia;
     }
 
-    public void setDistancia(int distancia) {
+    public void setDistancia(byte[] distancia) {
         this.distancia = distancia;
     }
 

@@ -6,6 +6,7 @@ public class Emisor implements Runnable {
     private TablaEncaminamiento tablaEncaminamiento;
 
     public Emisor(TablaEncaminamiento tablaEncaminamiento) {
+
         this.tablaEncaminamiento = tablaEncaminamiento;
     }
 
@@ -14,9 +15,12 @@ public class Emisor implements Runnable {
 
         while (true) {
             Servidor.envioUnicast(mensajeActualizado());
+
             synchronized (this) {
                 try {
+
                     wait(2000);
+
                 } catch (InterruptedException e) {
                 }
             }
