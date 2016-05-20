@@ -28,7 +28,9 @@ public class Servidor {
     e inicia el envío de la tabla.
      */
 
-    static DatagramSocket ds;
+    static DatagramSocket sendSocket;
+    static DatagramSocket receptionSocket;
+
     private static ArrayList<Router> listaVecinos = new ArrayList<>();
     private InetAddress ipLocal;
     private int puerto;
@@ -39,7 +41,7 @@ public class Servidor {
         this.puerto = puerto;
 
         procesarFicheroConfiguracion();
-        confPuerto(puerto);
+        confPuertos(puerto);                                      //Configura los puertos de escucha y envio de los socket
         //probarTablas();                                         //Imprime las tablas para probar qué tienen.
 
         while (true) {
@@ -54,22 +56,21 @@ public class Servidor {
     public static void envioUnicast(Paquete paquete) {
         for (Router destino : listaVecinos) {
             try {
-                System.out.println("Enviando el paquete hacia: IP=" + destino.getIp().getHostAddress() + " puerto=" + destino.getPuerto());
-                ds.send(paquete.getDatagramPacket(destino.getIp(), destino.getPuerto()));
-                if (!ds.isConnected()) {
-                    System.out.println("    No conectado - No se ha realizado el envío.");
-                } else {
-                    System.out.println("    Envío completado.");
-                }
+                System.out.println("Enviando desde el puerto " + sendSocket.getLocalPort());
+                System.out.println("Destino - IP:" + destino.getIp().getHostAddress() + " puerto:" + destino.getPuerto());
+
+                sendSocket.send(paquete.getDatagramPacket(destino.getIp(), destino.getPuerto()));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    void confPuerto(int puerto) {
+    public void confPuertos(int puerto) {
         try {
-            ds = new DatagramSocket(puerto); //TODO AQUI SE ABRE EL SOCKET DE ENVÍO
+            receptionSocket = new DatagramSocket(puerto); //TODO AQUI SE ABRE EL SOCKET DE RECEPCION
+            receptionSocket.setSoTimeout(10000);
+            sendSocket = new DatagramSocket(puerto + 1); //TODO AQUI SE ABRE EL SOCKET DE ENVÍO
         } catch (SocketException e) {
             e.printStackTrace();
         }
