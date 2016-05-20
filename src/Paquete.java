@@ -1,6 +1,8 @@
 import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 
 /**
  * Created by Yeray on 07/05/2016.
@@ -26,6 +28,11 @@ public class Paquete {
         datos.put((byte) 2);                    //Version RIP
         datos.put((byte) 0);                    //No usado
         datos.put((byte) 0);                    //No usado
+    }
+
+    Paquete(byte[] datagramPacket) {
+        datos = ByteBuffer.allocate(datagramPacket.length); //TODO SOBRA?
+        datos = ByteBuffer.wrap(datagramPacket);
     }
 
     void addEncaminamiento(Encaminamiento e) {
@@ -66,9 +73,43 @@ public class Paquete {
 
     }
 
+    public ByteBuffer getContenido() {
+        return datos;
+    }
+
     DatagramPacket getDatagramPacket(InetAddress iPdestino, int puertoDestino) {
         DatagramPacket dp = new DatagramPacket(datos.array(), datos.limit(), iPdestino, puertoDestino);
         return dp;
+    }
+
+    ArrayList<Encaminamiento> getEncaminamientosDelPacket() {
+
+        ArrayList<Encaminamiento> encaminamientos = new ArrayList<>();
+
+        for (int j = 0; j < (datos.limit() - 4) / 20; j++) {
+            try {
+                byte[] nombreIp = new byte[]{datos.get(j * 20 + 8), datos.get(j * 20 + 9), datos.get(j * 20 + 10), datos.get(j * 20 + 11)};
+                InetAddress ip = InetAddress.getByAddress(nombreIp);
+                if ((ip.getHostAddress() == "/0.0.0.0") || ip.getHostAddress() == "0.0.0.0") {
+                    continue;
+                }
+
+                ByteBuffer buffM = ByteBuffer.wrap(new byte[]{datos.get(j * 20 + 15), datos.get(j * 20 + 14), datos.get(j * 20 + 13), datos.get(j * 20 + 12)});
+                int mascara = buffM.getInt();
+
+                Router siguiente = new Router(InetAddress.getByAddress(new byte[]{datos.get(j * 20 + 16), datos.get(j * 20 + 17), datos.get(j * 20 + 18), datos.get(j * 20 + 19)}));
+
+                int distancia = datos.get(j * 20 + 23);
+
+                encaminamientos.add(new Encaminamiento(ip, mascara, siguiente, distancia));
+
+            } catch (UnknownHostException e) {
+                System.out.println("EXCEPCION EN:   PAQUETE > getEncaminamientosDelPacket");
+            }
+            System.out.println("        Encaminamiento: " + encaminamientos.get(j).toString());
+        }
+
+        return encaminamientos;
     }
 
 }

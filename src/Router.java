@@ -13,6 +13,10 @@ public class Router {
         this.puerto = puerto;
     }
 
+    public Router(InetAddress ip) {
+        this.ip = ip;
+    }
+
     public InetAddress getIp() {
         return ip;
     }

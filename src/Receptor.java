@@ -1,8 +1,6 @@
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
+import java.net.*;
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -25,6 +23,7 @@ public class Receptor implements Runnable {
         Date inicio = new Date();
         long timeout = 10000;
         boolean continuar = true;
+
         try {
             Servidor.receptionSocket.setSoTimeout((int) timeout);
         } catch (SocketException e) {
@@ -37,7 +36,7 @@ public class Receptor implements Runnable {
             timeout = 10000 - (actual.getTime() - inicio.getTime());
             Servidor.receptionSocket.setSoTimeout((int) timeout);
 
-            DatagramPacket recibido = new DatagramPacket(new byte[504], 504);
+            DatagramPacket recibido = new DatagramPacket(new byte[504], 504); //TODO ESTO CREA UN BUFFER DEMASIADO GRANDE
 
             System.out.println("Escuchando en el puerto " + Servidor.receptionSocket.getLocalPort());
 
@@ -49,6 +48,9 @@ public class Receptor implements Runnable {
         } catch (SocketTimeoutException e) {
             System.out.println("Se ha agotado el tiempo de espera.\n");
             continuar = false;
+        } catch (IllegalArgumentException e) {
+            System.out.println("EXCEPCION TIMEOUT");
+            continuar = false;
         } catch (SocketException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -57,8 +59,17 @@ public class Receptor implements Runnable {
 
     }
 
-    private void procesarPaquete(DatagramPacket receivedPacket) {
+    private void procesarPaquete(DatagramPacket receivedPacket) throws UnknownHostException {
         System.out.println("    PROCESANDO EL PAQUETE RECIBIDO...");
         System.out.println("        Long Paquete: " + receivedPacket.getLength() + "\n");
+
+        byte[] p = receivedPacket.getData();
+        Paquete recibido = new Paquete(p);
+
+        ArrayList<Encaminamiento> aux = recibido.getEncaminamientosDelPacket();
+
+
     }
+
+
 }
