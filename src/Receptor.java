@@ -60,7 +60,7 @@ public class Receptor implements Runnable {
     }
 
     private void procesarPaquete(DatagramPacket receivedPacket) throws UnknownHostException { //Tiene que pasar el paquete (DatagramPacket) a ArrayList.
-        System.out.println("    PROCESANDO EL PAQUETE RECIBIDO...");
+        System.out.println("    PROCESANDO PAQUETE. Recibido desde " + receivedPacket.getAddress().getHostAddress() + ":" + receivedPacket.getPort());
 
         byte[] p = receivedPacket.getData();
         Paquete recibido = new Paquete(p);

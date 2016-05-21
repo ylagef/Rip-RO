@@ -4,7 +4,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
@@ -41,38 +40,29 @@ public class Servidor {
         this.puerto = puerto;
 
         procesarFicheroConfiguracion();
-        confPuertos(puerto);                                      //Configura los puertos de escucha y envio de los socket
-        //probarTablas();                                         //Imprime las tablas para probar qué tienen.
 
         while (true) {
+            sendSocket = new DatagramSocket(puerto);
             Emisor e = new Emisor(tablaEncaminamiento);
             e.run();
+            sendSocket.close();
 
+            receptionSocket = new DatagramSocket(puerto);
             Receptor r = new Receptor(tablaEncaminamiento, ipLocal, puerto);
             r.run();
+            receptionSocket.close();
         }
     }
 
     public static void envioUnicast(Paquete paquete) {
         for (Router destino : listaVecinos) {
             try {
-                System.out.println("Enviando desde el puerto " + sendSocket.getLocalPort());
-                System.out.println("Destino - IP:" + destino.getIp().getHostAddress() + " puerto:" + destino.getPuerto());
-
+                System.out.print("Enviando desde el puerto " + sendSocket.getLocalPort() + " hacia  IP:" + destino.getIp().getHostAddress() + ":" + destino.getPuerto() + "...");
                 sendSocket.send(paquete.getDatagramPacket(destino.getIp(), destino.getPuerto()));
+                System.out.print(" [OK]\n");
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("ERROR EN EL ENVÍO");
             }
-        }
-    }
-
-    public void confPuertos(int puerto) {
-        try {
-            receptionSocket = new DatagramSocket(puerto); //TODO AQUI SE ABRE EL SOCKET DE RECEPCION
-            receptionSocket.setSoTimeout(10000);
-            sendSocket = new DatagramSocket(puerto + 1); //TODO AQUI SE ABRE EL SOCKET DE ENVÍO
-        } catch (SocketException e) {
-            e.printStackTrace();
         }
     }
 
@@ -81,7 +71,7 @@ public class Servidor {
         System.out.print("Leyendo fichero de configuración... ");
 
         String linea, info;
-        String ficheroConf = "ripconf-" + ipLocal.getHostAddress() + ".txt";
+        String ficheroConf = "ripconf-" + ipLocal.getHostAddress() + "-" + puerto + ".txt"; //TODO OJO, HAY QUE CAMBIAR ESTO AL FORMATO ORIGINAL
         FileReader fr = null;
 
         try {
@@ -147,4 +137,3 @@ public class Servidor {
     }
 
 }
-

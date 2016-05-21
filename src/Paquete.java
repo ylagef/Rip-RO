@@ -86,6 +86,7 @@ public class Paquete {
             try {
                 byte[] nombreIp = new byte[]{datos.get(j * 20 + 8), datos.get(j * 20 + 9), datos.get(j * 20 + 10), datos.get(j * 20 + 11)};
                 InetAddress ip = InetAddress.getByAddress(nombreIp);
+
                 if (ip.getHostAddress().contains("0.0.0.0")) {
                     continue;
                 }

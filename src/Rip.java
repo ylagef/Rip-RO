@@ -12,7 +12,7 @@ public class Rip {
         configIP(args); //Lee y asigna la ip inicial dependiendo de argumentos o local
 
         Servidor server = new Servidor(iplocal, puertolocal);
-        server.probarTablas();
+        //server.probarTablas(); //Imprime las tablas para probar qué tienen.
     }
 
     public static void configIP(String[] args) throws UnknownHostException, SocketException {
