@@ -1,7 +1,10 @@
 import java.io.IOException;
-import java.net.*;
-import java.util.ArrayList;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.Date;
+import java.util.concurrent.ArrayBlockingQueue;
 
 /**
  * Created by Yeray on 06/05/2016.
@@ -11,6 +14,9 @@ public class Receptor implements Runnable {
     private TablaEncaminamiento tablaEncaminamiento;
     private int puerto;
     private InetAddress ip;
+
+    private ArrayBlockingQueue<DatagramPacket> recibidos = new ArrayBlockingQueue<DatagramPacket>(100);
+
 
     public Receptor(TablaEncaminamiento tablaEncaminamiento, InetAddress ip, int puerto) {
         this.tablaEncaminamiento = tablaEncaminamiento;
@@ -32,21 +38,24 @@ public class Receptor implements Runnable {
         }
 
         while (continuar) try {
+
             Date actual = new Date();
             timeout = 10000 - (actual.getTime() - inicio.getTime());
             Servidor.receptionSocket.setSoTimeout((int) timeout);
 
             DatagramPacket recibido = new DatagramPacket(new byte[504], 504); //TODO ESTO CREA UN BUFFER DEMASIADO GRANDE, (se soluciona capando al procesar lo recibido)
 
-            System.out.println("Escuchando en el puerto " + Servidor.receptionSocket.getLocalPort());
+            //System.out.println("Escuchando en el puerto " + Servidor.receptionSocket.getLocalPort());
 
             Servidor.receptionSocket.receive(recibido);
 
-            if (Servidor.receptionSocket.isBound()) {
-                procesarPaquete(recibido);
-            }
+            recibidos.add(recibido);
+
+            ProcesadorPaquetes procesadorPaquetes = new ProcesadorPaquetes(this, recibidos, tablaEncaminamiento, recibido.getAddress(), recibido.getPort());
+            (new Thread(procesadorPaquetes)).start();
+
         } catch (SocketTimeoutException e) {
-            System.out.println("Se ha agotado el tiempo de espera.\n");
+            System.out.println("    Se ha agotado el tiempo de espera.\n");
             continuar = false;
         } catch (IllegalArgumentException e) {
             System.out.println("    Tiempo de escucha finalizado.\n");
@@ -56,21 +65,6 @@ public class Receptor implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-    }
-
-    private void procesarPaquete(DatagramPacket receivedPacket) throws UnknownHostException { //Tiene que pasar el paquete (DatagramPacket) a ArrayList.
-        System.out.println("    PROCESANDO PAQUETE. Recibido desde " + receivedPacket.getAddress().getHostAddress() + ":" + receivedPacket.getPort());
-
-        byte[] p = receivedPacket.getData();
-        Paquete recibido = new Paquete(p);
-
-        ArrayList<Encaminamiento> encaminamientos = recibido.getEncaminamientosDelPacket();
-        actualizarTabla(encaminamientos);
-    }
-
-    private void actualizarTabla(ArrayList<Encaminamiento> encaminamientos) {
-
 
     }
 

@@ -8,10 +8,10 @@ import java.nio.ByteBuffer;
 public class Encaminamiento {
 
     //Para facilitar el método toString
-    private InetAddress direccionString;
-    private InetAddress siguienteString;
-    private int mascaraString;
-    private int distanciaString;
+    private InetAddress direccionInet;
+    private Router siguienteRout;
+    private int mascaraInt;
+    private int distanciaInt;
 
     //Para crear correctamente el paquete de bytes
     private byte[] direccion;
@@ -21,8 +21,8 @@ public class Encaminamiento {
 
     //Este constructor es para las subredes directamente conectadas (distancia 1).
     public Encaminamiento(InetAddress direccion, int mascara) {
-        direccionString = direccion;
-        mascaraString = mascara;
+        direccionInet = direccion;
+        mascaraInt = mascara;
 
 
         ByteBuffer dirB = ByteBuffer.allocate(4);
@@ -42,10 +42,10 @@ public class Encaminamiento {
     }
 
     public Encaminamiento(InetAddress direccion, int mascara, Router siguiente, int distancia) {
-        direccionString = direccion;
-        distanciaString = distancia;
-        mascaraString = mascara;
-        siguienteString = siguiente.getIp();
+        direccionInet = direccion;
+        distanciaInt = distancia;
+        mascaraInt = mascara;
+        siguienteRout = siguiente;
 
         ByteBuffer dirB = ByteBuffer.allocate(4);
         dirB.put(direccion.getAddress());
@@ -94,14 +94,30 @@ public class Encaminamiento {
         return distancia;
     }
 
+    public InetAddress getDireccionInet() {
+        return direccionInet;
+    }
+
+    public Router getSiguienteRout() {
+        return siguienteRout;
+    }
+
+    public int getMascaraInt() {
+        return mascaraInt;
+    }
+
+    public int getDistanciaInt() {
+        return distanciaInt;
+    }
+
     @Override
     public String toString() {
 
         if (siguiente != null) {
-            return "[ " + direccionString.getHostName() + "/" + mascaraString + " | " + distanciaString + " | " + siguienteString.getCanonicalHostName() + " ]";
+            return "[ " + direccionInet.getHostName() + "/" + mascaraInt + " | " + distanciaInt + " | " + siguienteRout.getIp().getCanonicalHostName() + " ]";
         }
 
-        return "[ " + direccionString.getHostName() + "/" + mascaraString + " | " + distanciaString + " ]";
+        return "[ " + direccionInet.getHostName() + "/" + mascaraInt + " | " + distanciaInt + " ]";
 
     }
 }

@@ -103,7 +103,7 @@ public class Paquete {
             } catch (UnknownHostException e) {
                 System.out.println("EXCEPCION EN:   PAQUETE > getEncaminamientosDelPacket");
             }
-            System.out.println("        Encaminamiento: " + encaminamientos.get(j).toString());
+            //System.out.println("        Encaminamiento: " + encaminamientos.get(j).toString());
         }
 
         return encaminamientos;

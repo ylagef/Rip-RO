@@ -57,9 +57,8 @@ public class Servidor {
     public static void envioUnicast(Paquete paquete) {
         for (Router destino : listaVecinos) {
             try {
-                System.out.print("Enviando desde el puerto " + sendSocket.getLocalPort() + " hacia  IP:" + destino.getIp().getHostAddress() + ":" + destino.getPuerto() + "...");
+                System.out.println("Enviando desde el puerto " + sendSocket.getLocalPort() + " hacia  IP:" + destino.getIp().getHostAddress() + ":" + destino.getPuerto() + "...");
                 sendSocket.send(paquete.getDatagramPacket(destino.getIp(), destino.getPuerto()));
-                System.out.print(" [OK]\n");
             } catch (IOException e) {
                 System.out.println("ERROR EN EL ENVÍO");
             }

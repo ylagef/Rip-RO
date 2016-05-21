@@ -17,7 +17,7 @@ public class Emisor implements Runnable {
     }
 
     private Paquete mensajeActualizado() {
-        System.out.println("*********** Enviando tabla... ***********");
+        System.out.println("*********** TABLA ACTUAL ***********");
         tablaEncaminamiento.imprimirTabla();
         Paquete p = new Paquete(Comando.RESPONSE, tablaEncaminamiento.size());
         for (Map.Entry<String, Encaminamiento> e : tablaEncaminamiento.getTabla().entrySet()) {
