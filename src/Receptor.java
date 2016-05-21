@@ -36,7 +36,7 @@ public class Receptor implements Runnable {
             timeout = 10000 - (actual.getTime() - inicio.getTime());
             Servidor.receptionSocket.setSoTimeout((int) timeout);
 
-            DatagramPacket recibido = new DatagramPacket(new byte[504], 504); //TODO ESTO CREA UN BUFFER DEMASIADO GRANDE
+            DatagramPacket recibido = new DatagramPacket(new byte[504], 504); //TODO ESTO CREA UN BUFFER DEMASIADO GRANDE, (se soluciona capando al procesar lo recibido)
 
             System.out.println("Escuchando en el puerto " + Servidor.receptionSocket.getLocalPort());
 
@@ -49,7 +49,7 @@ public class Receptor implements Runnable {
             System.out.println("Se ha agotado el tiempo de espera.\n");
             continuar = false;
         } catch (IllegalArgumentException e) {
-            System.out.println("EXCEPCION TIMEOUT");
+            System.out.println("    Tiempo de escucha finalizado.\n");
             continuar = false;
         } catch (SocketException e) {
             e.printStackTrace();
@@ -59,17 +59,19 @@ public class Receptor implements Runnable {
 
     }
 
-    private void procesarPaquete(DatagramPacket receivedPacket) throws UnknownHostException {
+    private void procesarPaquete(DatagramPacket receivedPacket) throws UnknownHostException { //Tiene que pasar el paquete (DatagramPacket) a ArrayList.
         System.out.println("    PROCESANDO EL PAQUETE RECIBIDO...");
-        System.out.println("        Long Paquete: " + receivedPacket.getLength() + "\n");
 
         byte[] p = receivedPacket.getData();
         Paquete recibido = new Paquete(p);
 
-        ArrayList<Encaminamiento> aux = recibido.getEncaminamientosDelPacket();
+        ArrayList<Encaminamiento> encaminamientos = recibido.getEncaminamientosDelPacket();
+        actualizarTabla(encaminamientos);
+    }
+
+    private void actualizarTabla(ArrayList<Encaminamiento> encaminamientos) {
 
 
     }
-
 
 }

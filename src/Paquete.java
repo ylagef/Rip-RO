@@ -73,10 +73,6 @@ public class Paquete {
 
     }
 
-    public ByteBuffer getContenido() {
-        return datos;
-    }
-
     DatagramPacket getDatagramPacket(InetAddress iPdestino, int puertoDestino) {
         DatagramPacket dp = new DatagramPacket(datos.array(), datos.limit(), iPdestino, puertoDestino);
         return dp;
@@ -90,7 +86,7 @@ public class Paquete {
             try {
                 byte[] nombreIp = new byte[]{datos.get(j * 20 + 8), datos.get(j * 20 + 9), datos.get(j * 20 + 10), datos.get(j * 20 + 11)};
                 InetAddress ip = InetAddress.getByAddress(nombreIp);
-                if ((ip.getHostAddress() == "/0.0.0.0") || ip.getHostAddress() == "0.0.0.0") {
+                if (ip.getHostAddress().contains("0.0.0.0")) {
                     continue;
                 }
 
