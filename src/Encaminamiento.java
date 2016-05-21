@@ -11,7 +11,7 @@ public class Encaminamiento {
     private InetAddress direccionInet;
     private Router siguienteRout;
     private int mascaraInt;
-    private int distanciaInt;
+    private int distanciaInt = 1;
 
     //Para crear correctamente el paquete de bytes
     private byte[] direccion;

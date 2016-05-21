@@ -51,14 +51,30 @@ public class ProcesadorPaquetes implements Runnable {
     }
 
     public void actualizarTabla(ArrayList<Encaminamiento> encaminamientos) {
+
         HashMap<String, Encaminamiento> tabla = tablaEncaminamiento.getTabla();
+
         for (int i = 0; i < encaminamientos.size(); i++) {
-            Encaminamiento encaminamiento = encaminamientos.get(i);
-            if (tabla.containsKey(encaminamiento.getDireccionInet().getHostAddress())) { //Si la tabla de encaminamiento YA contiene ese encaminamiento
 
+            Encaminamiento encaminamientoAnterior = encaminamientos.get(i); //El que ya está en la tabla
+            Encaminamiento encaminamientoNuevo = tabla.get(encaminamientoAnterior.getDireccionInet().getHostAddress()); //El que nos envió el vecino
 
-            } else {
-                tabla.put(encaminamiento.getDireccionInet().getHostAddress(), new Encaminamiento(encaminamiento.getDireccionInet(), encaminamiento.getMascaraInt(), new Router(emisor, puerto), encaminamiento.getDistanciaInt()));
+            if (tabla.containsKey(encaminamientoAnterior.getDireccionInet().getHostAddress())) { //Si la tabla de encaminamiento YA contiene ese encaminamiento se comparan las distancias.
+                int distanciaAnterior;
+                int distanciaNueva;
+
+                distanciaNueva = encaminamientoNuevo.getDistanciaInt();
+                distanciaAnterior = encaminamientoAnterior.getDistanciaInt();
+
+                if (distanciaNueva < distanciaAnterior) {
+                    //Se cambia el encaminamiento
+                    tabla.remove(encaminamientoAnterior.getDireccionInet().getHostAddress());
+                    tabla.put(encaminamientoNuevo.getDireccionInet().getHostAddress(), encaminamientoNuevo);
+                }
+
+            } else { //Añade a la tabla el encaminamiento
+                tabla.put(encaminamientoNuevo.getDireccionInet().getHostAddress(), new Encaminamiento(encaminamientoNuevo.getDireccionInet(), encaminamientoNuevo.getMascaraInt(),
+                        new Router(emisor, puerto), (encaminamientoNuevo.getDistanciaInt() + 1)));
             }
         }
     }
