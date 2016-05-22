@@ -1,0 +1,8 @@
+//Subredes a las que estoy conectado
+192.168.3.0/24
+192.168.4.0/24
+192.168.5.0/24
+
+//Routers a los que estoy conectado
+10.100.178.4:7777
+10.100.178.4:9999

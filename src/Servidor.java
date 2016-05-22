@@ -76,7 +76,8 @@ public class Servidor {
         try {
             fr = new FileReader(ficheroConf);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            System.out.println("Error al leer el fichero de configuración. Compruebe el nombre.");
+            System.exit(-1);
         }
 
         BufferedReader br = new BufferedReader(fr);

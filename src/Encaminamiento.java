@@ -114,8 +114,9 @@ public class Encaminamiento {
     public String toString() {
 
         if (siguiente != null) {
-            return "[ " + direccionInet.getHostName() + "/" + mascaraInt + " | " + distanciaInt + " | " + siguienteRout.getIp().getCanonicalHostName() + " ]";
-        }
+            return "[ " + direccionInet.getHostName() + "/" + mascaraInt + " | " + distanciaInt + " | " + siguienteRout.getIp().getCanonicalHostName() + ":" + siguienteRout.getPuerto()
+                    + " ]";
+        }//TODO HAY QUE MODIFICAR ESTO PARA QUE NO MUESTRE EL PUERTO, PERO PARA LAS PRUEBAS ES MÁS FÁCIL ASÍ
 
         return "[ " + direccionInet.getHostName() + "/" + mascaraInt + " | " + distanciaInt + " ]";
 
