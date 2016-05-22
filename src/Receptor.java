@@ -1,6 +1,5 @@
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.Date;
@@ -12,16 +11,11 @@ import java.util.concurrent.ArrayBlockingQueue;
 public class Receptor implements Runnable {
 
     private TablaEncaminamiento tablaEncaminamiento;
-    private int puerto;
-    private InetAddress ip;
 
     private ArrayBlockingQueue<DatagramPacket> recibidos = new ArrayBlockingQueue<DatagramPacket>(100);
 
-
-    public Receptor(TablaEncaminamiento tablaEncaminamiento, InetAddress ip, int puerto) {
+    public Receptor(TablaEncaminamiento tablaEncaminamiento) {
         this.tablaEncaminamiento = tablaEncaminamiento;
-        this.ip = ip;
-        this.puerto = puerto;
     }
 
     @Override

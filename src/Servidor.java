@@ -48,7 +48,7 @@ public class Servidor {
             sendSocket.close();
 
             receptionSocket = new DatagramSocket(puerto);
-            Receptor r = new Receptor(tablaEncaminamiento, ipLocal, puerto);
+            Receptor r = new Receptor(tablaEncaminamiento);
             r.run();
             receptionSocket.close();
         }

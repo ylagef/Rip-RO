@@ -5,3 +5,4 @@
 
 //Routers a los que estoy conectado
 10.100.178.4:8888
+10.100.178.4:6666

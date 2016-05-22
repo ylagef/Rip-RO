@@ -58,7 +58,7 @@ public class ProcesadorPaquetes implements Runnable {
 
             Encaminamiento encaminamientoNuevo = encaminamientos.get(i); //El que ya está en la tabla
 
-            if (tabla.containsKey(encaminamientoNuevo.getDireccionInet().getHostAddress())) { //Si la tabla de encaminamiento YA contiene ese encaminamiento se comparan las distancias.
+            if (tabla.containsKey(encaminamientoNuevo.getDireccionInet().getHostAddress())) { //TODO AQUI CAMBIE //Si la tabla de encaminamiento YA contiene ese encaminamiento se comparan las distancias.
                 Encaminamiento encaminamientoActual = tabla.get(encaminamientoNuevo.getDireccionInet().getHostAddress()); //El que nos envió el vecino
 
                 int distanciaActual;
