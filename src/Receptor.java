@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.Date;
@@ -11,11 +12,24 @@ import java.util.concurrent.ArrayBlockingQueue;
 public class Receptor implements Runnable {
 
     private TablaEncaminamiento tablaEncaminamiento;
-
+    private InetAddress ipLocal;
+    private int puertoLocal;
     private ArrayBlockingQueue<DatagramPacket> recibidos = new ArrayBlockingQueue<DatagramPacket>(100);
 
-    public Receptor(TablaEncaminamiento tablaEncaminamiento) {
+    public Receptor(TablaEncaminamiento tablaEncaminamiento, InetAddress ipLocal, int puertoLocal) {
         this.tablaEncaminamiento = tablaEncaminamiento;
+        this.ipLocal = ipLocal;
+        this.puertoLocal = puertoLocal;
+
+
+    }
+
+    public InetAddress getIpLocal() {
+        return ipLocal;
+    }
+
+    public int getPuertoLocal() {
+        return puertoLocal;
     }
 
     @Override
@@ -27,7 +41,6 @@ public class Receptor implements Runnable {
         try {
             Servidor.receptionSocket.setSoTimeout((int) timeout);
         } catch (SocketException e) {
-            // TODO Auto-generated catch bloc
             System.out.println("TIEMPO DE ESPERA AGOTADO");
         }
 

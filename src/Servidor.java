@@ -43,12 +43,12 @@ public class Servidor {
 
         while (true) {
             sendSocket = new DatagramSocket(puerto);
-            Emisor e = new Emisor(tablaEncaminamiento);
+            Emisor e = new Emisor(tablaEncaminamiento, ipLocal);
             e.run();
             sendSocket.close();
 
             receptionSocket = new DatagramSocket(puerto);
-            Receptor r = new Receptor(tablaEncaminamiento);
+            Receptor r = new Receptor(tablaEncaminamiento, ipLocal, puerto);
             r.run();
             receptionSocket.close();
         }
@@ -136,4 +136,11 @@ public class Servidor {
 
     }
 
+    public InetAddress getIpLocal() {
+        return ipLocal;
+    }
+
+    public int getPuerto() {
+        return puerto;
+    }
 }

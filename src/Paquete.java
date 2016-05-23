@@ -14,6 +14,7 @@ public class Paquete {
     //       1                1              2     2           2         4      4           4           4
     //                                  En Bytes (octetos)
 
+    static private byte[] password;
     private ByteBuffer datos;
     private int indice = 0; //TODO lo pongo a 0 para que empiece justo tras la cabecera, ¿por qué estaba a 1?
 
@@ -33,6 +34,10 @@ public class Paquete {
     Paquete(byte[] datagramPacket) {
         datos = ByteBuffer.allocate(datagramPacket.length); //TODO SOBRA?
         datos = ByteBuffer.wrap(datagramPacket);
+    }
+
+    public static void setPassword(String pass) {
+        password = pass.getBytes();
     }
 
     void addEncaminamiento(Encaminamiento e) {
@@ -78,7 +83,7 @@ public class Paquete {
         return dp;
     }
 
-    ArrayList<Encaminamiento> getEncaminamientosDelPacket() {
+    ArrayList<Encaminamiento> getEncaminamientosDelPacket(InetAddress ipEmisor, int puertoEmisor) {
 
         ArrayList<Encaminamiento> encaminamientos = new ArrayList<>();
 
@@ -108,5 +113,4 @@ public class Paquete {
 
         return encaminamientos;
     }
-
 }

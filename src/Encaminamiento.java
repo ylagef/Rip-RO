@@ -7,11 +7,13 @@ import java.nio.ByteBuffer;
  */
 public class Encaminamiento {
 
+    long timer = System.nanoTime();
+
     //Para facilitar el método toString
     private InetAddress direccionInet;
     private Router siguienteRout;
     private int mascaraInt;
-    private int distanciaInt = 1;
+    private int distanciaInt = 0; //Las subredes conectadas están a distancia 0 (directamente conectadas) al router.
 
     //Para crear correctamente el paquete de bytes
     private byte[] direccion;
@@ -37,7 +39,7 @@ public class Encaminamiento {
         distB.put((byte) 0);
         distB.put((byte) 0);
         distB.put((byte) 0);
-        distB.put((byte) 1);
+        distB.put((byte) 0);
         this.distancia = distB.array();
     }
 
@@ -92,6 +94,16 @@ public class Encaminamiento {
 
     public byte[] getDistancia() {
         return distancia;
+    }
+
+    public void setDistancia(int distancia) {
+        this.distanciaInt = distancia;
+        ByteBuffer distB = ByteBuffer.allocate(4);
+        distB.put((byte) 0);
+        distB.put((byte) 0);
+        distB.put((byte) 0);
+        distB.put((byte) distancia);
+        this.distancia = distB.array();
     }
 
     public InetAddress getDireccionInet() {

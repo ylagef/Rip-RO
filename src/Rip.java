@@ -1,4 +1,6 @@
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.*;
 import java.util.Enumeration;
 
@@ -10,6 +12,13 @@ public class Rip {
     public static void main(String[] args) throws IOException {
 
         configIP(args); //Lee y asigna la ip inicial dependiendo de argumentos o local
+
+        InputStreamReader isr = new InputStreamReader(System.in);
+        BufferedReader br = new BufferedReader(isr);
+        System.out.println("Escriba la contraseña: ");
+        String password = br.readLine();
+        Paquete.setPassword(password);
+        System.out.println("");
 
         Servidor server = new Servidor(iplocal, puertolocal);
         //server.probarTablas(); //Imprime las tablas para probar qué tienen.
