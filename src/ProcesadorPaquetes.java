@@ -3,6 +3,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
@@ -42,7 +43,7 @@ public class ProcesadorPaquetes implements Runnable {
 
     private void procesarPaquete(DatagramPacket receivedPacket) throws UnknownHostException { //Tiene que pasar el paquete (DatagramPacket) a ArrayList.
         //System.out.println("    PROCESANDO PAQUETE. Recibido desde " + receivedPacket.getAddress().getHostAddress() + ":" + receivedPacket.getPort());
-
+        if (receivedPacket.getPort() != puerto) return;
         byte[] p = receivedPacket.getData();
         Paquete recibido = new Paquete(p);
 
@@ -80,19 +81,37 @@ public class ProcesadorPaquetes implements Runnable {
                     //Se cambia el encaminamiento
                     tabla.remove(encaminamientoActual.getDireccionInet().getHostAddress());
                     //tabla.put(encaminamientoNuevo.getDireccionInet().getHostAddress(), encaminamientoNuevo);
+                    encaminamientoNuevo.resetTimer(); //Pone el timer a la hora actual.
                     tabla.put(encaminamientoNuevo.getDireccionInet().getHostAddress(), new Encaminamiento(encaminamientoNuevo.getDireccionInet(), encaminamientoNuevo.getMascaraInt(),
                             new Router(emisor, puerto), (encaminamientoNuevo.getDistanciaInt() + 1)));
                 }
 
             } else { //Añade a la tabla el encaminamiento
-                if (encaminamientoNuevo.getSiguienteRout().getIp().getHostAddress().contains(receptor.getIpLocal().getHostAddress()) && (encaminamientoNuevo.getSiguienteRout()
-                        .getPuerto() == receptor.getPuertoLocal())) {
-                    continue;
-                }
-
+                encaminamientoNuevo.resetTimer();
                 tabla.put(encaminamientoNuevo.getDireccionInet().getHostAddress(), new Encaminamiento(encaminamientoNuevo.getDireccionInet(), encaminamientoNuevo.getMascaraInt(),
                         new Router(emisor, puerto), (encaminamientoNuevo.getDistanciaInt() + 1)));
             }
         }
+
+        /* Comprueba que los tiempos no hayan pasado */
+        for (Map.Entry<String, Encaminamiento> e : tabla.entrySet()) {
+
+            Encaminamiento encaminamientoActual = e.getValue();
+
+            long tiempoInsercion = encaminamientoActual.getTimer();
+
+            long diferencia = (long) ((System.nanoTime() - tiempoInsercion) / (10e9));
+
+            if ((240 >= diferencia) & (diferencia >= 180)) {
+                //Distancia a este encaminamiento infinito (16)
+                encaminamientoActual.setDistancia(16);
+            } else if (diferencia > 240) {
+                //Lo borra de la tabla
+                tabla.remove(encaminamientoActual.getDireccionInet().getHostAddress());
+            }
+
+        }
+
+
     }
 }

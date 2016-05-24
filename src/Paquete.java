@@ -16,7 +16,7 @@ public class Paquete {
 
     static private byte[] password;
     private ByteBuffer datos;
-    private int indice = 0; //TODO lo pongo a 0 para que empiece justo tras la cabecera, ¿por qué estaba a 1?
+    private int indice = 1; //TODO lo pongo a 0 para que empiece justo tras la cabecera, ¿por qué estaba a 1?
 
     Paquete(Comando c, int tableSize) {
 
@@ -29,6 +29,13 @@ public class Paquete {
         datos.put((byte) 2);                    //Version RIP
         datos.put((byte) 0);                    //No usado
         datos.put((byte) 0);                    //No usado
+
+        //Parte de autenticación
+        datos.put((byte) 255);                        //Address Family
+        datos.put((byte) 255);
+        datos.put((byte) 0);
+        datos.put((byte) 2);                         //Tipo
+        datos.put(password);                        //Password
     }
 
     Paquete(byte[] datagramPacket) {
@@ -87,7 +94,7 @@ public class Paquete {
 
         ArrayList<Encaminamiento> encaminamientos = new ArrayList<>();
 
-        for (int j = 0; j < (datos.limit() - 4) / 20; j++) {
+        for (int j = 1; j < (datos.limit() - 4) / 20; j++) { //TODO OJO AQUI, EMPIEZA EN UNO PORQUE EN EL PAQUETE INDICE UNO
             try {
                 byte[] nombreIp = new byte[]{datos.get(j * 20 + 8), datos.get(j * 20 + 9), datos.get(j * 20 + 10), datos.get(j * 20 + 11)};
                 InetAddress ip = InetAddress.getByAddress(nombreIp);

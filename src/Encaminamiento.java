@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
  */
 public class Encaminamiento {
 
-    long timer = System.nanoTime();
+    long tiempoInsercion = System.nanoTime(); //Momento en que se inserta en la tabla de encaminamiento.
 
     //Para facilitar el método toString
     private InetAddress direccionInet;
@@ -120,6 +120,15 @@ public class Encaminamiento {
 
     public int getDistanciaInt() {
         return distanciaInt;
+    }
+
+    public void resetTimer() {
+        tiempoInsercion = System.nanoTime();
+        return;
+    }
+
+    public long getTimer() {
+        return tiempoInsercion;
     }
 
     @Override
