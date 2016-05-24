@@ -86,11 +86,20 @@ public class Paquete {
     }
 
     DatagramPacket getDatagramPacket(InetAddress iPdestino, int puertoDestino) {
-        DatagramPacket dp = new DatagramPacket(datos.array(), datos.limit(), iPdestino, puertoDestino);
+
+        Paquete p = new Paquete(Comando.RESPONSE, getEncaminamientosDelPacket().size());
+        for (Encaminamiento e : this.getEncaminamientosDelPacket()) {
+            if (e.getSiguienteRout().getIp().getHostAddress().equals(iPdestino))
+                e.setDistancia(16);
+            p.addEncaminamiento(e);
+        }
+
+        DatagramPacket dp = new DatagramPacket(p.datos.array(), p.datos.limit(), iPdestino, puertoDestino);
+
         return dp;
     }
 
-    ArrayList<Encaminamiento> getEncaminamientosDelPacket(InetAddress ipEmisor, int puertoEmisor) {
+    ArrayList<Encaminamiento> getEncaminamientosDelPacket() {
 
         ArrayList<Encaminamiento> encaminamientos = new ArrayList<>();
 
