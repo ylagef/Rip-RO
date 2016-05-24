@@ -15,10 +15,21 @@ public class Rip {
 
         InputStreamReader isr = new InputStreamReader(System.in);
         BufferedReader br = new BufferedReader(isr);
-        System.out.println("Escriba la contraseña: ");
-        String password = br.readLine();
+        boolean sizeMal = true;
+        String password = "";
+        while (sizeMal) {
+            System.out.println("Por favor, escriba la contraseña: ");
 
-        Paquete.setPassword(password);
+            password = br.readLine();
+            if (password.length() < 1) {
+                System.out.println("Debe tener al menos un caracter.");
+                continue;
+            } else {
+                sizeMal = false;
+            }
+        }
+
+        Paquete.genPassword(password);
         System.out.println("");
 
         Servidor server = new Servidor(iplocal, puertolocal);

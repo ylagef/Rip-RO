@@ -42,8 +42,19 @@ public class ProcesadorPaquetes implements Runnable {
 
     private void procesarPaquete(DatagramPacket receivedPacket) throws UnknownHostException { //Tiene que pasar el paquete (DatagramPacket) a ArrayList.
         //System.out.println("    PROCESANDO PAQUETE. Recibido desde " + receivedPacket.getAddress().getHostAddress() + ":" + receivedPacket.getPort());
-        if (receivedPacket.getPort() != puerto) return;
+
+        if (receivedPacket.getPort() != puerto) {
+            System.out.println("Puerto incorrecto.");
+            return;
+        }
+
         byte[] p = receivedPacket.getData();
+
+        if (!new Paquete(p).isPassValid()) {
+            System.out.println("Contraseña incorrecta.");
+            return;
+        }
+
         Paquete recibido = new Paquete(p);
 
         ArrayList<Encaminamiento> encaminamientos = recibido.getEncaminamientosDelPacket();

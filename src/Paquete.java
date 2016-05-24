@@ -3,6 +3,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by Yeray on 07/05/2016.
@@ -43,8 +44,10 @@ public class Paquete {
         datos = ByteBuffer.wrap(datagramPacket);
     }
 
-    public static void setPassword(String pass) {
-        password = pass.getBytes();
+    public static void genPassword(String pass) {
+        while (pass.length() < 16) pass += "0";
+        if (pass.length() > 16) pass = pass.substring(0, 16);
+        password = pass.getBytes(); //Aquí un array de 16 byts
     }
 
     void addEncaminamiento(Encaminamiento e) {
@@ -128,5 +131,13 @@ public class Paquete {
         }
 
         return encaminamientos;
+    }
+
+    public boolean isPassValid() {
+        byte[] passToValidate = new byte[16];
+        for (int i = 8; i < 24; i++) {
+            passToValidate[i - 8] = datos.get(i);
+        }
+        return Arrays.equals(passToValidate, password);
     }
 }
