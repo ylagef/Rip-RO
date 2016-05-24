@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
 public class Encaminamiento {
 
     long tiempoInsercion = System.nanoTime(); //Momento en que se inserta en la tabla de encaminamiento.
-
+    boolean basura = false;
     //Para facilitar el método toString
     private InetAddress direccionInet;
     private Router siguienteRout;
@@ -131,12 +131,17 @@ public class Encaminamiento {
         return tiempoInsercion;
     }
 
+    public void esBasura() {
+        basura = true;
+        return;
+    }
+
     @Override
     public String toString() {
 
         if (siguiente != null) {
             return "[ " + direccionInet.getHostName() + "/" + mascaraInt + " | " + distanciaInt + " | " + siguienteRout.getIp().getCanonicalHostName() + ":" + siguienteRout.getPuerto()
-                    + " ]";
+                    + " ] " + ((long) ((System.nanoTime() - tiempoInsercion) / (10e8)));
         }//TODO HAY QUE MODIFICAR ESTO PARA QUE NO MUESTRE EL PUERTO, PERO PARA LAS PRUEBAS ES MÁS FÁCIL ASÍ
 
         return "[ " + direccionInet.getHostName() + "/" + mascaraInt + " | " + distanciaInt + " ]";

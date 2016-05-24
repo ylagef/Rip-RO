@@ -51,6 +51,8 @@ public class Servidor {
             Receptor r = new Receptor(tablaEncaminamiento, ipLocal, puerto);
             r.run();
             receptionSocket.close();
+
+            tablaEncaminamiento.compruebaTimeouts();
         }
     }
 

@@ -4,6 +4,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.Date;
+import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
@@ -35,7 +36,8 @@ public class Receptor implements Runnable {
     @Override
     public void run() {
         Date inicio = new Date();
-        long timeout = 10000;
+        Random r = new Random();
+        long timeout = 10000 + ((r.nextInt(10) - 5) * 1000);
         boolean continuar = true;
 
         try {

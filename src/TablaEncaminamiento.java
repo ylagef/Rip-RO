@@ -1,4 +1,5 @@
 import java.net.InetAddress;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,6 +40,39 @@ public class TablaEncaminamiento {
         return tabla;
     }
 
+    public void compruebaTimeouts() {
+        /* Comprueba que los tiempos no hayan pasado */
+        try {
+            for (Map.Entry<String, Encaminamiento> e : tabla.entrySet()) {
+
+                Encaminamiento encaminamientoActual = e.getValue();
+
+                if (e.getValue().getDistanciaInt() == 0) {
+                    e.getValue().resetTimer();
+                    continue;
+                }
+
+                long tiempoInsercion = encaminamientoActual.getTimer();
+
+                long diferencia = (long) ((System.nanoTime() - tiempoInsercion) / (10e8));
+
+                //if ((diferencia >=240) & (diferencia <= 180)) {
+                if ((diferencia >= 35) & (diferencia <= 65)) {
+                    //Distancia a este encaminamiento infinito (16)
+                    encaminamientoActual.setDistancia(16);
+                    //} else if (diferencia > 240) {
+                } else if (diferencia > 65) {
+                    //Lo borra de la tabla
+                    tabla.remove(e.getKey());
+                }
+
+            }
+        } catch (ConcurrentModificationException e) {
+            compruebaTimeouts();
+        }
+
+        return;
+    }
 
 }
 
