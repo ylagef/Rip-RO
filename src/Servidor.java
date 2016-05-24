@@ -137,12 +137,4 @@ public class Servidor {
         tablaEncaminamiento.imprimirTabla();
 
     }
-
-    public InetAddress getIpLocal() {
-        return ipLocal;
-    }
-
-    public int getPuerto() {
-        return puerto;
-    }
 }

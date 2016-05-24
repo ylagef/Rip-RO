@@ -47,6 +47,11 @@ public class TablaEncaminamiento {
 
                 Encaminamiento encaminamientoActual = e.getValue();
 
+                if (encaminamientoActual.getBasura()) {
+                    tabla.remove(e.getKey());
+                    continue;
+                }
+
                 if (e.getValue().getDistanciaInt() == 0) {
                     e.getValue().resetTimer();
                     continue;

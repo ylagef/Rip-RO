@@ -62,6 +62,7 @@ public class ProcesadorPaquetes implements Runnable {
 
                 Encaminamiento encaminamientoActual = tabla.get(encaminamientoNuevo.getDireccionInet().getHostAddress()); //El que nos envió el vecino
 
+
                 //TODO ¡IMPORTANTE! en mis pruebas esto no funciona porque el siguiente salto no incluye el puerto, por lo tanto no puedo comparar. Hay que probarlo con diferentes IPs.
 
                 //TODO ¿Esto es Split-horizon? Si el siguiente salto soy yo, no le hago caso al encaminamiento.
@@ -71,6 +72,11 @@ public class ProcesadorPaquetes implements Runnable {
 
                 distanciaNueva = encaminamientoNuevo.getDistanciaInt();
                 distanciaActual = encaminamientoActual.getDistanciaInt();
+
+                if (distanciaNueva >= 16) {
+                    encaminamientoActual.setBasura();
+                    continue;
+                }
 
                 if ((distanciaNueva + 1) < distanciaActual) {
                     //Se cambia el encaminamiento

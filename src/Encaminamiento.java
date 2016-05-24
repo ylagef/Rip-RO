@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
 public class Encaminamiento {
 
     long tiempoInsercion = System.nanoTime(); //Momento en que se inserta en la tabla de encaminamiento.
-    boolean basura = false;
+    boolean basura;
     //Para facilitar el método toString
     private InetAddress direccionInet;
     private Router siguienteRout;
@@ -131,9 +131,13 @@ public class Encaminamiento {
         return tiempoInsercion;
     }
 
-    public void esBasura() {
+    public void setBasura() {
         basura = true;
         return;
+    }
+
+    public boolean getBasura() {
+        return basura;
     }
 
     @Override
