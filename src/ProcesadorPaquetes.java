@@ -79,6 +79,7 @@ public class ProcesadorPaquetes implements Runnable {
 
                 if (encaminamientoNuevo.getDistanciaInt() >= 16) {
                     encaminamientoActual.setDistancia(16);
+                    encaminamientoActual.setBasura();
                     continue;
                 }
 
@@ -93,14 +94,12 @@ public class ProcesadorPaquetes implements Runnable {
                 if ((distanciaNueva + 1) < distanciaActual) {
                     //Se cambia el encaminamiento
                     tabla.remove(encaminamientoActual.getDireccionInet().getHostAddress());
-                    //tabla.put(encaminamientoNuevo.getDireccionInet().getHostAddress(), encaminamientoNuevo);
                     Encaminamiento nuevo = new Encaminamiento(encaminamientoNuevo.getDireccionInet(), encaminamientoNuevo.getMascaraInt(),
                             new Router(emisor, puerto), (encaminamientoNuevo.getDistanciaInt() + 1));
                     nuevo.resetTimer(); //Pone el timer a la hora actual.
                     tabla.put(encaminamientoNuevo.getDireccionInet().getHostAddress(), nuevo);
                 }
                 encaminamientoActual.resetTimer(); //Se reinicia el tiempo.
-
             } else { //Añade a la tabla el encaminamiento
                 Encaminamiento nuevo = new Encaminamiento(encaminamientoNuevo.getDireccionInet(), encaminamientoNuevo.getMascaraInt(),
                         new Router(emisor, puerto), (encaminamientoNuevo.getDistanciaInt() + 1));
