@@ -24,18 +24,19 @@ public class Encaminamiento {
     private byte[] distancia;
 
     //Este constructor es para las subredes directamente conectadas (distancia 1).
-    public Encaminamiento(InetAddress direccion, int mascara) {
+    public Encaminamiento(InetAddress direccion, int masc) {
         direccionInet = direccion;
-        mascaraInt = mascara;
+        mascaraInt = masc;
 
 
         ByteBuffer dirB = ByteBuffer.allocate(4);
         dirB.put(direccion.getAddress());
         this.direccion = dirB.array();
 
-        ByteBuffer mascaraB = ByteBuffer.allocate(4);
-        mascaraB.put((byte) mascara);
-        this.mascara = mascaraB.array();
+        int mascara1 = 0xffffffff << (32 - masc);
+        byte[] mascaraBytes = new byte[]{
+                (byte) (mascara1 >>> 24), (byte) (mascara1 >> 16 & 0xff), (byte) (mascara1 >> 8 & 0xff), (byte) (mascara1 & 0xff)};
+        this.mascara = mascaraBytes;
 
         ByteBuffer distB = ByteBuffer.allocate(4);
         distB.put((byte) 0);
@@ -45,19 +46,20 @@ public class Encaminamiento {
         this.distancia = distB.array();
     }
 
-    public Encaminamiento(InetAddress direccion, int mascara, Router siguiente, int distancia) {
+    public Encaminamiento(InetAddress direccion, int masc, Router siguiente, int distancia) {
         direccionInet = direccion;
         distanciaInt = distancia;
-        mascaraInt = mascara;
+        mascaraInt = masc;
         siguienteRout = siguiente;
 
         ByteBuffer dirB = ByteBuffer.allocate(4);
         dirB.put(direccion.getAddress());
         this.direccion = dirB.array();
 
-        ByteBuffer mascaraB = ByteBuffer.allocate(4);
-        mascaraB.put((byte) mascara);
-        this.mascara = mascaraB.array();
+        int mascara1 = 0xffffffff << (32 - masc);
+        byte[] mascaraBytes = new byte[]{
+                (byte) (mascara1 >>> 24), (byte) (mascara1 >> 16 & 0xff), (byte) (mascara1 >> 8 & 0xff), (byte) (mascara1 & 0xff)};
+        this.mascara = mascaraBytes;
 
         ByteBuffer distB = ByteBuffer.allocate(4);
         distB.put((byte) 0);

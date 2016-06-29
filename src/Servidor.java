@@ -56,11 +56,22 @@ public class Servidor {
         }
     }
 
-    public static void envioUnicast(Paquete paquete) {
+    public static void envioUnicast(Paquete paquete, int size) {
         for (Router destino : listaVecinos) {
             try {
                 System.out.println("Enviando desde el puerto " + sendSocket.getLocalPort() + " hacia  IP:" + destino.getIp().getHostAddress() + ":" + destino.getPuerto() + "...");
-                sendSocket.send(paquete.getDatagramPacket(destino.getIp(), destino.getPuerto()));
+
+                ArrayList<Encaminamiento> encaminamientos = paquete.getEncaminamientosDelPacket();
+                Paquete aux = new Paquete(Comando.RESPONSE, size);
+                for (int i = 0; i < encaminamientos.size(); i++) {
+                    Encaminamiento encaminamiento = encaminamientos.get(i);
+                    if (encaminamiento.getSiguienteRout().getIp().getHostAddress().replaceAll("/", "").contains(destino.getIp().getHostAddress().replaceAll("/", ""))) {
+                        encaminamiento.setDistancia(16);
+                    }
+                    aux.addEncaminamiento(encaminamiento);
+                }
+
+                sendSocket.send(aux.getDatagramPacket(destino.getIp(), destino.getPuerto()));
             } catch (IOException e) {
                 System.out.println("ERROR EN EL ENVÍO");
             }

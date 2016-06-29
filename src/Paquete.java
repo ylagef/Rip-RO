@@ -20,7 +20,7 @@ public class Paquete {
     private int indice = 1;
 
     Paquete(Comando c, int tableSize) {
-
+        indice = 1;
         //Como es el constructor lo que haremos es inicializar el buffer e introducirle su cabecera.
 
         datos = ByteBuffer.allocate(4 + 20 * (tableSize + 1)); //Esto es necesario ya que hay que reservar el espacio.
@@ -36,7 +36,7 @@ public class Paquete {
         datos.put((byte) 255);
         datos.put((byte) 0);
         datos.put((byte) 2);                         //Tipo
-        datos.put(password);                        //Password
+        datos.put(password);                     //Password
     }
 
     Paquete(byte[] datagramPacket) {
@@ -45,9 +45,11 @@ public class Paquete {
     }
 
     public static void genPassword(String pass) {
+
         while (pass.length() < 16) pass += "0";
         if (pass.length() > 16) pass = pass.substring(0, 16);
         password = pass.getBytes();
+
     }
 
     void addEncaminamiento(Encaminamiento e) {
@@ -72,10 +74,15 @@ public class Paquete {
         datos.put(9 + indice * 20, direccion[1]);
         datos.put(10 + indice * 20, direccion[2]);
         datos.put(11 + indice * 20, direccion[3]);
-        datos.put(12 + indice * 20, mascara[0]);            //Mascara subred
-        datos.put(13 + indice * 20, mascara[1]);
-        datos.put(14 + indice * 20, mascara[2]);
-        datos.put(15 + indice * 20, mascara[3]);
+
+        int mascara1 = 0xffffffff << (32 - Integer.valueOf(mascara[0]));
+        byte[] mascaraBytes = new byte[]{
+                (byte) (mascara1 >>> 24), (byte) (mascara1 >> 16 & 0xff), (byte) (mascara1 >> 8 & 0xff), (byte) (mascara1 & 0xff)};
+
+        datos.put(12 + indice * 20, mascaraBytes[0]);            //Mascara subred
+        datos.put(13 + indice * 20, mascaraBytes[1]);
+        datos.put(14 + indice * 20, mascaraBytes[2]);
+        datos.put(15 + indice * 20, mascaraBytes[3]);
         datos.put(16 + indice * 20, siguiente[0]);          //Siguiente salto
         datos.put(17 + indice * 20, siguiente[1]);
         datos.put(18 + indice * 20, siguiente[2]);

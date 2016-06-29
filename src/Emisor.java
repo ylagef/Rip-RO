@@ -16,7 +16,7 @@ public class Emisor implements Runnable {
 
     @Override
     public void run() {
-        Servidor.envioUnicast(mensajeActualizado());
+        Servidor.envioUnicast(mensajeActualizado(), tablaEncaminamiento.size());
     }
 
     private Paquete mensajeActualizado() {
@@ -24,7 +24,6 @@ public class Emisor implements Runnable {
         tablaEncaminamiento.imprimirTabla();
         Paquete p = new Paquete(Comando.RESPONSE, tablaEncaminamiento.size());
         for (Map.Entry<String, Encaminamiento> e : tablaEncaminamiento.getTabla().entrySet()) {
-
             p.addEncaminamiento(e.getValue());
         }
         return p;
