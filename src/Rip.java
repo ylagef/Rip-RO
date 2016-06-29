@@ -1,4 +1,6 @@
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.*;
 import java.util.Enumeration;
 
@@ -10,6 +12,25 @@ public class Rip {
     public static void main(String[] args) throws IOException {
 
         configIP(args); //Lee y asigna la ip inicial dependiendo de argumentos o local
+
+        InputStreamReader isr = new InputStreamReader(System.in);
+        BufferedReader br = new BufferedReader(isr);
+        boolean sizeMal = true;
+        String password = "";
+        while (sizeMal) {
+            System.out.println("Por favor, escriba la contraseña: ");
+
+            password = br.readLine();
+            if (password.length() < 1) {
+                System.out.println("Debe tener al menos un caracter.");
+                continue;
+            } else {
+                sizeMal = false;
+            }
+        }
+
+        Paquete.genPassword(password);
+        System.out.println("");
 
         Servidor server = new Servidor(iplocal, puertolocal);
     }
@@ -30,7 +51,7 @@ public class Rip {
             Enumeration en = NetworkInterface.getNetworkInterfaces();
             while (en.hasMoreElements()) {
                 NetworkInterface i = (NetworkInterface) en.nextElement();
-                if (i.getName().contains("wlan2")) {
+                if (i.getName().contains("eth0")) {
                     for (Enumeration en2 = i.getInetAddresses(); en2.hasMoreElements(); ) {
                         InetAddress addr = (InetAddress) en2.nextElement();
                         if (!addr.isLoopbackAddress()) {
@@ -45,6 +66,7 @@ public class Rip {
 
             System.out.printf("NO EXISTE ETH0");
             System.exit(-1);
+
         }
 
     }

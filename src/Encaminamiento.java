@@ -1,69 +1,157 @@
 import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
 
 /**
  * Created by Yeray on 06/05/2016.
  */
 public class Encaminamiento {
 
-    private InetAddress direccion;
-    private int mascara;
-    private Router siguiente;
-    private int distancia;
+    long tiempoInsercion = System.nanoTime(); //Momento en que se inserta en la tabla de encaminamiento.
+
+    boolean basura = false;
+
+    //Para facilitar el método toString
+    private InetAddress direccionInet;
+    private Router siguienteRout;
+    private int mascaraInt;
+    private int distanciaInt = 1; //Las subredes conectadas están a distancia 0 (directamente conectadas) al router.
+
+    //Para crear correctamente el paquete de bytes
+    private byte[] direccion;
+    private byte[] mascara;
+    private byte[] siguiente;
+    private byte[] distancia;
 
     //Este constructor es para las subredes directamente conectadas (distancia 1).
     public Encaminamiento(InetAddress direccion, int mascara) {
-        this.direccion = direccion;
-        this.mascara = mascara;
-        this.distancia = 1;
+        direccionInet = direccion;
+        mascaraInt = mascara;
+
+
+        ByteBuffer dirB = ByteBuffer.allocate(4);
+        dirB.put(direccion.getAddress());
+        this.direccion = dirB.array();
+
+        ByteBuffer mascaraB = ByteBuffer.allocate(4);
+        mascaraB.put((byte) mascara);
+        this.mascara = mascaraB.array();
+
+        ByteBuffer distB = ByteBuffer.allocate(4);
+        distB.put((byte) 0);
+        distB.put((byte) 0);
+        distB.put((byte) 0);
+        distB.put((byte) 1);
+        this.distancia = distB.array();
     }
 
     public Encaminamiento(InetAddress direccion, int mascara, Router siguiente, int distancia) {
-        this.direccion = direccion;
-        this.mascara = mascara;
-        this.distancia = distancia;
-        this.siguiente = siguiente;
+        direccionInet = direccion;
+        distanciaInt = distancia;
+        mascaraInt = mascara;
+        siguienteRout = siguiente;
+
+        ByteBuffer dirB = ByteBuffer.allocate(4);
+        dirB.put(direccion.getAddress());
+        this.direccion = dirB.array();
+
+        ByteBuffer mascaraB = ByteBuffer.allocate(4);
+        mascaraB.put((byte) mascara);
+        this.mascara = mascaraB.array();
+
+        ByteBuffer distB = ByteBuffer.allocate(4);
+        distB.put((byte) 0);
+        distB.put((byte) 0);
+        distB.put((byte) 0);
+        distB.put((byte) distancia);
+        this.distancia = distB.array();
+
+        ByteBuffer sigB = ByteBuffer.allocate(4);
+        sigB.put(siguiente.getIp().getAddress());
+        this.siguiente = sigB.array();
     }
 
-    public InetAddress getDireccion() {
+    public byte[] getDireccion() {
         return direccion;
     }
 
-    public void setDireccion(InetAddress direccion) {
-        this.direccion = direccion;
-    }
-
-    public int getMascara() {
+    public byte[] getMascara() {
         return mascara;
     }
 
-    public void setMascara(int mascara) {
-        this.mascara = mascara;
+    public byte[] getSiguiente() {
+        if (siguiente != null) {
+            return siguiente;
+        } else {
+            ByteBuffer sigB = ByteBuffer.allocate(4);
+            try {
+                sigB.put(InetAddress.getByName("0.0.0.0").getAddress());
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
+            return sigB.array();
+        }
+
     }
 
-    public Router getSiguiente() {
-        return siguiente;
-    }
-
-    public void setSiguiente(Router siguiente) {
-        this.siguiente = siguiente;
-    }
-
-    public int getDistancia() {
+    public byte[] getDistancia() {
         return distancia;
     }
 
     public void setDistancia(int distancia) {
-        this.distancia = distancia;
+        this.distanciaInt = distancia;
+        ByteBuffer distB = ByteBuffer.allocate(4);
+        distB.put((byte) 0);
+        distB.put((byte) 0);
+        distB.put((byte) 0);
+        distB.put((byte) distancia);
+        this.distancia = distB.array();
+    }
+
+    public InetAddress getDireccionInet() {
+        return direccionInet;
+    }
+
+    public Router getSiguienteRout() {
+        return siguienteRout;
+    }
+
+    public int getMascaraInt() {
+        return mascaraInt;
+    }
+
+    public int getDistanciaInt() {
+        return distanciaInt;
+    }
+
+    public void resetTimer() {
+        tiempoInsercion = System.nanoTime();
+        return;
+    }
+
+    public long getTimer() {
+        return tiempoInsercion;
+    }
+
+    public void setBasura() {
+        setDistancia(16);
+        basura = true;
+        return;
+    }
+
+    public boolean getbasura() {
+        return basura;
     }
 
     @Override
     public String toString() {
 
         if (siguiente != null) {
-            return "[ " + direccion + "/" + mascara + " | " + distancia + " | " + siguiente + " ]";
+            return "[ " + direccionInet.getHostAddress() + "/" + mascaraInt + " | " + distanciaInt + " | " + siguienteRout.getIp().getHostAddress()
+                    + " ]";
         }
 
-        return "[ " + direccion + "/" + mascara + " | " + distancia + " ]";
+        return "[ " + direccionInet.getHostName() + "/" + mascaraInt + " | " + distanciaInt + " ]";
 
     }
 }

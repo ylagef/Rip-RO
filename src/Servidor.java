@@ -2,9 +2,23 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
+
+enum Comando {
+
+    //Los tipos de comandos sirven para especificar el propósito del mensaje.
+
+    REQUEST(1), RESPONSE(2);
+
+    public final int valor;
+
+    Comando(int valor) {
+        this.valor = valor;
+    }
+}
 
 public class Servidor {
 
@@ -13,31 +27,59 @@ public class Servidor {
     e inicia el envío de la tabla.
      */
 
-    private InetAddress iplocal;
+    static DatagramSocket sendSocket;
+    static DatagramSocket receptionSocket;
+
+    private static ArrayList<Router> listaVecinos = new ArrayList<>();
+    private InetAddress ipLocal;
     private int puerto;
-    private ArrayList<Router> listaVecinos = new ArrayList<>();
     private TablaEncaminamiento tablaEncaminamiento = new TablaEncaminamiento();
 
-    public Servidor(InetAddress iplocal, int puerto) throws IOException {
-        this.iplocal = iplocal;
+    public Servidor(InetAddress ipLocal, int puerto) throws IOException {
+        this.ipLocal = ipLocal;
         this.puerto = puerto;
 
         procesarFicheroConfiguracion();
-        probarTablas();
 
+        while (true) {
+            sendSocket = new DatagramSocket(puerto);
+            Emisor e = new Emisor(tablaEncaminamiento, ipLocal);
+            e.run();
+            sendSocket.close();
 
+            receptionSocket = new DatagramSocket(puerto);
+            Receptor r = new Receptor(tablaEncaminamiento, ipLocal, puerto);
+            r.run();
+            receptionSocket.close();
+
+            tablaEncaminamiento.compruebaTimeouts();
+        }
+    }
+
+    public static void envioUnicast(Paquete paquete) {
+        for (Router destino : listaVecinos) {
+            try {
+                System.out.println("Enviando desde el puerto " + sendSocket.getLocalPort() + " hacia  IP:" + destino.getIp().getHostAddress() + ":" + destino.getPuerto() + "...");
+                sendSocket.send(paquete.getDatagramPacket(destino.getIp(), destino.getPuerto()));
+            } catch (IOException e) {
+                System.out.println("ERROR EN EL ENVÍO");
+            }
+        }
     }
 
     private void procesarFicheroConfiguracion() throws IOException {
 
+        System.out.print("Leyendo fichero de configuración... ");
+
         String linea, info;
-        String ficheroConf = "ripconf-" + iplocal.getHostAddress() + ".txt";
+        String ficheroConf = "ripconf-" + ipLocal.getHostAddress() + ".topo"; //TODO OJO, HAY QUE CAMBIAR ESTO AL FORMATO ORIGINAL
         FileReader fr = null;
 
         try {
             fr = new FileReader(ficheroConf);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            System.out.println("Error al leer el fichero de configuración. Compruebe el nombre.");
+            System.exit(-1);
         }
 
         BufferedReader br = new BufferedReader(fr);
@@ -81,6 +123,7 @@ public class Servidor {
                 }
             }
         }
+        System.out.print("Completado con éxito.\n\n");
     }
 
     public void probarTablas() {
@@ -94,6 +137,4 @@ public class Servidor {
         tablaEncaminamiento.imprimirTabla();
 
     }
-
 }
-
