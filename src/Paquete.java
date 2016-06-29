@@ -97,7 +97,6 @@ public class Paquete {
         //Hay que añadir cada encaminamiento seguido del anterior en el buffer.
 
         byte[] direccion = e.getDireccion();
-        byte[] mascara = e.getMascara();
         byte[] siguiente = e.getSiguiente();
         byte[] distancia = e.getDistancia();
 
@@ -115,7 +114,7 @@ public class Paquete {
         datos.put(10 + indice * 20, direccion[2]);
         datos.put(11 + indice * 20, direccion[3]);
 
-        int mascara1 = 0xffffffff << (32 - Integer.valueOf(mascara[0]));
+        int mascara1 = 0xffffffff << (32 - Integer.valueOf(e.getMascaraInt()));
         byte[] mascaraBytes = new byte[]{
                 (byte) (mascara1 >>> 24), (byte) (mascara1 >> 16 & 0xff), (byte) (mascara1 >> 8 & 0xff), (byte) (mascara1 & 0xff)};
 
@@ -162,7 +161,6 @@ public class Paquete {
                     continue;
                 }
 
-                //ByteBuffer buffM = ByteBuffer.wrap(new byte[]{datos.get(j * 20 + 15), datos.get(j * 20 + 14), datos.get(j * 20 + 13), datos.get(j * 20 + 12)});
                 InetAddress msk = InetAddress.getByAddress(new byte[]{datos.get(j * 20 + 12), datos.get(j * 20 + 13), datos.get(j * 20 + 14), datos.get(j * 20 + 15)});
 
                 int mascara = convertNetmaskToCIDR(msk);
