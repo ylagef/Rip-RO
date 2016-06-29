@@ -45,16 +45,24 @@ public class Paquete {
     }
 
     public static void genPassword(String pass) {
+        ByteBuffer buffer = null;
 
-        ByteBuffer buffer = ByteBuffer.allocate(16);
-        buffer.put(pass.getBytes());
-        if (pass.length() < 16) {
+        if (pass.length() <= 16) {
+            buffer = ByteBuffer.allocate(16);
+            buffer.put(pass.getBytes());
             for (int i = 0; i < (16 - pass.length()); i++) {
                 buffer.put((byte) 0x00);
             }
         }
 
-        //if (pass.length() > 16) pass = pass.substring(0, 16);
+        if (pass.length() > 16) {
+            pass = pass.substring(0, 16);
+            buffer = ByteBuffer.allocate(16);
+            buffer.put(pass.getBytes());
+            for (int i = 0; i < (16 - pass.length()); i++) {
+                buffer.put((byte) 0x00);
+            }
+        }
 
         password = buffer.array();
 
