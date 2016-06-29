@@ -33,6 +33,7 @@ public class Rip {
         System.out.println("");
 
         Servidor server = new Servidor(iplocal, puertolocal);
+        //server.probarTablas(); //Imprime las tablas para probar qué tienen.
     }
 
     public static void configIP(String[] args) throws UnknownHostException, SocketException {
@@ -47,6 +48,8 @@ public class Rip {
             }
 
         } else {
+
+            //TODO Hay que probar esta funcion en los ordenadores del laboratorio, no es seguro que funcione.
 
             Enumeration en = NetworkInterface.getNetworkInterfaces();
             while (en.hasMoreElements()) {
