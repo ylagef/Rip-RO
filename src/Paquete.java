@@ -52,6 +52,29 @@ public class Paquete {
 
     }
 
+    public static int convertNetmaskToCIDR(InetAddress netmask) {
+
+        byte[] netmaskBytes = netmask.getAddress();
+        int cidr = 0;
+        boolean zero = false;
+        for (byte b : netmaskBytes) {
+            int mask = 0x80;
+
+            for (int i = 0; i < 8; i++) {
+                int result = b & mask;
+                if (result == 0) {
+                    zero = true;
+                } else if (zero) {
+                    throw new IllegalArgumentException("Invalid netmask.");
+                } else {
+                    cidr++;
+                }
+                mask >>>= 1;
+            }
+        }
+        return cidr;
+    }
+
     void addEncaminamiento(Encaminamiento e) {
 
         //Hay que añadir cada encaminamiento seguido del anterior en el buffer.
@@ -122,8 +145,10 @@ public class Paquete {
                     continue;
                 }
 
-                ByteBuffer buffM = ByteBuffer.wrap(new byte[]{datos.get(j * 20 + 15), datos.get(j * 20 + 14), datos.get(j * 20 + 13), datos.get(j * 20 + 12)});
-                int mascara = buffM.getInt();
+                //ByteBuffer buffM = ByteBuffer.wrap(new byte[]{datos.get(j * 20 + 15), datos.get(j * 20 + 14), datos.get(j * 20 + 13), datos.get(j * 20 + 12)});
+                InetAddress msk = InetAddress.getByAddress(new byte[]{datos.get(j * 20 + 12), datos.get(j * 20 + 13), datos.get(j * 20 + 14), datos.get(j * 20 + 15)});
+
+                int mascara = convertNetmaskToCIDR(msk);
 
                 Router siguiente = new Router(InetAddress.getByAddress(new byte[]{datos.get(j * 20 + 16), datos.get(j * 20 + 17), datos.get(j * 20 + 18), datos.get(j * 20 + 19)}));
 
