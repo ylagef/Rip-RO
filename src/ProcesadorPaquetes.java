@@ -3,6 +3,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
@@ -15,7 +17,8 @@ public class ProcesadorPaquetes implements Runnable {
     private TablaEncaminamiento tablaEncaminamiento;
     private InetAddress emisor;
 
-    ProcesadorPaquetes(Receptor receptor, ArrayBlockingQueue<DatagramPacket> recibidos, TablaEncaminamiento tablaEncaminamiento, InetAddress emisor, int puerto) {
+    ProcesadorPaquetes(Receptor receptor, ArrayBlockingQueue<DatagramPacket> recibidos,
+                       TablaEncaminamiento tablaEncaminamiento, InetAddress emisor, int puerto) {
         this.receptor = receptor;
         this.recibidos = recibidos;
         this.tablaEncaminamiento = tablaEncaminamiento;
@@ -71,15 +74,29 @@ public class ProcesadorPaquetes implements Runnable {
 
         for (int i = 0; i < encaminamientos.size(); i++) {
 
-            Encaminamiento encaminamientoNuevo = encaminamientos.get(i); //El que ya está en la tabla
+            Encaminamiento encaminamientoNuevo = encaminamientos.get(i); //El que nos mandó el vecino
 
-            if (encaminamientoNuevo.getSiguienteRout().getIp().getHostAddress().contains(this.receptor.getIpLocal().getHostAddress())) {
+            if (encaminamientoNuevo.getDireccionInet().getHostAddress().contains(receptor.getIpLocal().getHostAddress())) {
                 continue;
             }
 
-            if (tabla.containsKey(encaminamientoNuevo.getDireccionInet().getHostAddress())) {
+            if (tabla.containsKey(encaminamientoNuevo.getDireccionInet().getHostAddress())) { //Ya tengo esta subred
 
-                Encaminamiento encaminamientoActual = tabla.get(encaminamientoNuevo.getDireccionInet().getHostAddress()); //El que nos envió el vecino
+                Iterator it = tabla.entrySet().iterator();
+                while (it.hasNext()) {
+                    Map.Entry e = (Map.Entry) it.next();
+                    if (mismaSubred(encaminamientoNuevo, (Encaminamiento) e.getValue())) {
+
+                    }
+                }
+
+                Encaminamiento encaminamientoActual =
+                        tabla.get(encaminamientoNuevo.getDireccionInet().getHostAddress()); //El de la tabla actual
+
+                if (encaminamientoNuevo.getDireccionInet().getHostAddress().contains(receptor.getIpLocal().getHostAddress())) {
+                    System.out.println("SOY YO");
+                    continue;
+                }
 
                 if (encaminamientoActual.getDireccionInet().getHostAddress().contains(receptor.getIpLocal().getHostAddress())) {
                     continue;
@@ -90,27 +107,47 @@ public class ProcesadorPaquetes implements Runnable {
                     continue;
                 }
 
-                int distanciaActual;
-                int distanciaNueva;
-
-                distanciaNueva = encaminamientoNuevo.getDistanciaInt();
-                distanciaActual = encaminamientoActual.getDistanciaInt();
+                int distanciaNueva = encaminamientoNuevo.getDistanciaInt();
+                int distanciaActual = encaminamientoActual.getDistanciaInt();
 
                 if ((distanciaNueva + 1) < distanciaActual) {
                     //Se cambia el encaminamiento
+
                     tabla.remove(encaminamientoActual.getDireccionInet().getHostAddress());
-                    Encaminamiento nuevo = new Encaminamiento(encaminamientoNuevo.getDireccionInet(), encaminamientoNuevo.getMascaraInt(),
-                            new Router(emisor, puerto), (encaminamientoNuevo.getDistanciaInt() + 1));
+                    Encaminamiento nuevo = new Encaminamiento(encaminamientoNuevo.getDireccionInet(),
+                            encaminamientoNuevo.getMascaraInt(), new Router(emisor, puerto),
+                            (encaminamientoNuevo.getDistanciaInt() + 1));
                     nuevo.resetTimer(); //Pone el timer a la hora actual.
                     tabla.put(encaminamientoNuevo.getDireccionInet().getHostAddress(), nuevo);
                 }
+
                 encaminamientoActual.resetTimer(); //Se reinicia el tiempo.
-            } else { //Añade a la tabla el encaminamiento
-                Encaminamiento nuevo = new Encaminamiento(encaminamientoNuevo.getDireccionInet(), encaminamientoNuevo.getMascaraInt(),
-                        new Router(emisor, puerto), (encaminamientoNuevo.getDistanciaInt() + 1));
+
+            } else { //No tengo la subred. Añade a la tabla el encaminamiento
+                Encaminamiento nuevo = new Encaminamiento(encaminamientoNuevo.getDireccionInet(),
+                        encaminamientoNuevo.getMascaraInt(), new Router(emisor, puerto),
+                        (encaminamientoNuevo.getDistanciaInt() + 1));
+
                 nuevo.resetTimer();
                 tabla.put(nuevo.getDireccionInet().getHostAddress(), nuevo);
             }
         }
     }
+
+    InetAddress mismaSubred(Encaminamiento e1, Encaminamiento e2) throws UnknownHostException {
+        int mascara = 0xffffffff << (32 - Integer.valueOf(e.getMascaraInt()));
+        byte[] mascaraBytes = new byte[]{
+                (byte) (mascara >>> 24), (byte) (mascara >> 16 & 0xff), (byte) (mascara >> 8 & 0xff), (byte) (mascara & 0xff)};
+
+        byte[] ip = e.getDireccionInet().getAddress();
+
+        int aux1 = ip[0] & mascaraBytes[0];
+        int aux2 = ip[1] & mascaraBytes[1];
+        int aux3 = ip[2] & mascaraBytes[2];
+        int aux4 = ip[3] & mascaraBytes[3];
+
+        InetAddress network = InetAddress.getByAddress(new byte[]{(byte) aux1, (byte) aux2, (byte) aux3, (byte) aux4});
+
+    }
+
 }
