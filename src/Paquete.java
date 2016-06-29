@@ -55,6 +55,7 @@ public class Paquete {
             }
         }
 
+
         if (pass.length() > 16) {
             pass = pass.substring(0, 16);
             buffer = ByteBuffer.allocate(16);
