@@ -20,7 +20,8 @@ public class Emisor implements Runnable {
     }
 
     private Paquete mensajeActualizado() {
-        System.out.println("*********** TABLA ACTUAL ***********");
+        System.out.println("\t\t **********************    TABLA ACTUAL   **********************");
+        System.out.println("\t\t[\t\t SUBRED \t\t|\t MÉTRICA \t|\t SIGUIENTE SALTO \t]");
         tablaEncaminamiento.imprimirTabla();
         Paquete p = new Paquete(Comando.RESPONSE, tablaEncaminamiento.size());
         for (Map.Entry<String, Encaminamiento> e : tablaEncaminamiento.getTabla().entrySet()) {

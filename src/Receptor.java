@@ -4,7 +4,6 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.Date;
-import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
@@ -36,8 +35,10 @@ public class Receptor implements Runnable {
     @Override
     public void run() {
         Date inicio = new Date();
-        Random r = new Random();
-        long timeout = 10000 + ((r.nextInt(10) - 5) * 1000);
+
+        double aleat = Math.random() * 5 + 0.1;
+        long timeout = 10000 + (long) (aleat * 1000);
+
         boolean continuar = true;
 
         try {
@@ -49,7 +50,7 @@ public class Receptor implements Runnable {
         while (continuar) try {
 
             Date actual = new Date();
-            timeout = 10000 - (actual.getTime() - inicio.getTime());
+            timeout = timeout - (actual.getTime() - inicio.getTime());
             Servidor.receptionSocket.setSoTimeout((int) timeout);
 
             DatagramPacket recibido = new DatagramPacket(new byte[504], 504); //TODO ESTO CREA UN BUFFER DEMASIADO GRANDE, (se soluciona capando al procesar lo recibido)

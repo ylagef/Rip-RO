@@ -135,25 +135,15 @@ public class Encaminamiento {
         return tiempoInsercion;
     }
 
-    public void setBasura() {
-        setDistancia(16);
-        basura = true;
-        return;
-    }
-
-    public boolean getbasura() {
-        return basura;
-    }
-
     @Override
     public String toString() {
 
         if (siguiente != null) {
-            return "[ " + direccionInet.getHostAddress() + "/" + mascaraInt + " | " + distanciaInt + " | " + siguienteRout.getIp().getHostAddress()
-                    + " ]";
+            return "[\t" + direccionInet.getHostAddress() + "/" + mascaraInt + "\t\t|\t\t" + distanciaInt + "\t\t|\t\t" + siguienteRout.getIp().getHostAddress()
+                    + "\t]";
         }
 
-        return "[ " + direccionInet.getHostName() + "/" + mascaraInt + " | " + distanciaInt + " ]";
+        return "[\t" + direccionInet.getHostName() + "/" + mascaraInt + "\t\t|\t\t" + distanciaInt + "\t\t]";
 
     }
 }
