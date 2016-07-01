@@ -80,24 +80,32 @@ public class ProcesadorPaquetes implements Runnable {
                 continue;
             }
 
-            if (tabla.containsKey(encaminamientoNuevo.getDireccionInet().getHostAddress())) { //Ya tengo esta subred
-                boolean stop = false;
-                Iterator it = tabla.entrySet().iterator();
-                while (it.hasNext()) {
-                    Map.Entry e = (Map.Entry) it.next();
-                    if (!encaminamientoNuevo.getDireccionInet().getHostAddress().contentEquals(((Encaminamiento) e.getValue()).getDireccionInet().getHostAddress())) {
+            boolean pasa = false;
+            Iterator it = tabla.entrySet().iterator();
+            while (it.hasNext()) {
+
+                Map.Entry e = (Map.Entry) it.next();
+                if (!encaminamientoNuevo.getDireccionInet().getHostAddress().contains(((Encaminamiento) e.getValue()).getDireccionInet().getHostAddress())) {
+                    if (encaminamientoNuevo.getMascaraInt() != ((Encaminamiento) e.getValue()).getMascaraInt()) {
+
                         if (mismaSubred(encaminamientoNuevo, (Encaminamiento) e.getValue())) {
-                            System.out.println("1 - No añade.");
-                            stop = true;
+                            System.out.println("    " + encaminamientoNuevo.getDireccionInet().getHostAddress() + "/" + encaminamientoNuevo.getMascaraInt() + " es mayor subred que " +
+                                    ((Encaminamiento) e.getValue()).getDireccionInet().getHostAddress() + "/" + ((Encaminamiento) e.getValue()).getMascaraInt());
+
+                            //La que nos mandan es mejor, así que la añadimos pero dejamos la que tenemos ya que a la nuestra llegamos antes nosotros.
+                            pasa = false;
+                            break;
                         } else {
-                            System.out.println("2 - Añade.");
+                            //No se añade
+                            pasa = true;
+                            continue;
                         }
                     }
                 }
+            }
+            if (pasa) continue;
 
-                if (stop) {
-                    continue;
-                }
+            if (tabla.containsKey(encaminamientoNuevo.getDireccionInet().getHostAddress())) { //Ya tengo esta subred
 
                 Encaminamiento encaminamientoActual =
                         tabla.get(encaminamientoNuevo.getDireccionInet().getHostAddress()); //El de la tabla actual
@@ -144,16 +152,10 @@ public class ProcesadorPaquetes implements Runnable {
 
     boolean mismaSubred(Encaminamiento e1, Encaminamiento e2) throws UnknownHostException {
         InetAddress net1 = netFromEnc(e1.getDireccionInet(), e1.getMascaraInt()); //net del e1
-        InetAddress net2 = netFromEnc(net1, e2.getMascaraInt()); //net del net1 con la mascara del 2
+        InetAddress net2 = netFromEnc(e2.getDireccionInet(), e2.getMascaraInt()); //net del e2
+        InetAddress net3 = netFromEnc(net2, e1.getMascaraInt());
 
-        if (net1.getHostAddress().replaceAll("/", "").contentEquals(net2.getHostAddress().replaceAll("/", ""))) {
-            System.out.println("Misma subred");
-            return true;
-        } else {
-            System.out.println("Distinta subred");
-            return false;
-        }
-
+        return net1.getHostAddress().replaceAll("/", "").contentEquals(net3.getHostAddress().replaceAll("/", ""));
     }
 
     InetAddress netFromEnc(InetAddress dir, int masc) throws UnknownHostException {
