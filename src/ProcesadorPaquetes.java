@@ -81,6 +81,8 @@ public class ProcesadorPaquetes implements Runnable {
             }
 
             boolean pasa = false;
+            boolean borrarAlgo = false;
+            String borrar = "";
             Iterator it = tabla.entrySet().iterator();
             while (it.hasNext()) {
 
@@ -91,6 +93,12 @@ public class ProcesadorPaquetes implements Runnable {
                         if (mismaSubred(encaminamientoNuevo, (Encaminamiento) e.getValue())) {
                             System.out.println("    " + encaminamientoNuevo.getDireccionInet().getHostAddress() + "/" + encaminamientoNuevo.getMascaraInt() + " es mayor subred que " +
                                     ((Encaminamiento) e.getValue()).getDireccionInet().getHostAddress() + "/" + ((Encaminamiento) e.getValue()).getMascaraInt());
+
+                            if (((encaminamientoNuevo.getDistanciaInt() + 1) <= ((Encaminamiento) e.getValue()).getDistanciaInt()) && (encaminamientoNuevo.getDistanciaInt() < 16)) {
+                                //Borrar el viejo y meter el nuevo
+                                borrar = ((Encaminamiento) e.getValue()).getDireccionInet().getHostAddress();
+                                borrarAlgo = true;
+                            }
 
                             //La que nos mandan es mejor, así que la añadimos pero dejamos la que tenemos ya que a la nuestra llegamos antes nosotros.
                             pasa = false;
@@ -104,6 +112,7 @@ public class ProcesadorPaquetes implements Runnable {
                 }
             }
             if (pasa) continue;
+            if (borrarAlgo) tabla.remove(borrar);
 
             if (tabla.containsKey(encaminamientoNuevo.getDireccionInet().getHostAddress())) { //Ya tengo esta subred
 
@@ -140,12 +149,14 @@ public class ProcesadorPaquetes implements Runnable {
                 encaminamientoActual.resetTimer(); //Se reinicia el tiempo.
 
             } else { //No tengo la subred. Añade a la tabla el encaminamiento
-                Encaminamiento nuevo = new Encaminamiento(encaminamientoNuevo.getDireccionInet(),
-                        encaminamientoNuevo.getMascaraInt(), new Router(emisor, puerto),
-                        (encaminamientoNuevo.getDistanciaInt() + 1));
+                if (encaminamientoNuevo.getDistanciaInt() < 16) { //Por si soy el sig salto y me mandó dist 16
+                    Encaminamiento nuevo = new Encaminamiento(encaminamientoNuevo.getDireccionInet(),
+                            encaminamientoNuevo.getMascaraInt(), new Router(emisor, puerto),
+                            (encaminamientoNuevo.getDistanciaInt() + 1));
 
-                nuevo.resetTimer();
-                tabla.put(nuevo.getDireccionInet().getHostAddress(), nuevo);
+                    nuevo.resetTimer();
+                    tabla.put(nuevo.getDireccionInet().getHostAddress(), nuevo);
+                }
             }
         }
     }
