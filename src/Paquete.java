@@ -32,11 +32,48 @@ public class Paquete {
         datos.put((byte) 0);                    //No usado
 
         //Parte de autenticación
-        datos.put((byte) 255);                        //Address Family
+        datos.put((byte) 255);
         datos.put((byte) 255);
         datos.put((byte) 0);
         datos.put((byte) 2);                         //Tipo
         datos.put(password);                     //Password
+
+
+        /*
+        //Cabecera del paquete (ocupa 4 bytes).
+        datos.put((byte) c.valor);              //Tipo de comando
+        datos.put((byte) 2);                    //Version RIP
+        datos.put((byte) 0);                    //No usado
+        datos.put((byte) 0);                    //No usado
+
+        //Parte de autenticación
+        datos.put((byte) 255);
+        datos.put((byte) 255);
+        datos.put((byte) 0);
+        datos.put((byte) 3);                    //Tipo 3 crypto
+
+        int pl = (4 + 20 * (tableSize + 1));
+        int pl1 = 0x00FF & pl;
+        int pl2 = 0x00FF & (pl >> 8);
+        datos.put((byte) pl2);                         //RIPv2 packet length
+        datos.put((byte) pl1);                         //RIPv2 packet length
+        datos.put((byte) 5);                           //Key ID ¿El puerto?
+        datos.put((byte) 0);                           //Auth data length
+        datos.put((byte) 0);                           //Seq number
+        datos.put((byte) 0);                           //Seq number
+        datos.put((byte) 0);                           //Seq number
+        datos.put((byte) 0);                           //Seq number
+        datos.put((byte) 0);                          //No usado
+        datos.put((byte) 0);                            //No usado
+        datos.put((byte) 0);                           //No usado
+        datos.put((byte) 0);                         //No usado
+        //Datos
+        datos.put((byte) 0);                            //No usado
+        datos.put((byte) 0);                            //No usado
+        datos.put((byte) 0);                           //No usado
+        datos.put((byte) 0x001);                        //No usado
+        datos.put(password);                           //Password */
+
     }
 
     Paquete(byte[] datagramPacket) {
