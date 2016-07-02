@@ -20,24 +20,21 @@ enum Comando {
     }
 }
 
-public class Servidor {
+class Servidor {
 
     /*Esta clase servidor crea un servidor en el Router del que se le dice la ip
     y en este lee su fichero de configuración, crea el ArrayList de los vecinos
     e inicia el envío de la tabla.
      */
 
-    static DatagramSocket sendSocket;
     static DatagramSocket receptionSocket;
-
+    private static DatagramSocket sendSocket;
     private static ArrayList<Router> listaVecinos = new ArrayList<>();
     private InetAddress ipLocal;
-    private int puerto;
     private TablaEncaminamiento tablaEncaminamiento = new TablaEncaminamiento();
 
-    public Servidor(InetAddress ipLocal, int puerto) throws IOException {
+    Servidor(InetAddress ipLocal, int puerto) throws IOException {
         this.ipLocal = ipLocal;
-        this.puerto = puerto;
 
         procesarFicheroConfiguracion();
 
@@ -56,15 +53,14 @@ public class Servidor {
         }
     }
 
-    public static void envioUnicast(Paquete paquete, int size) {
+    static void envioUnicast(Paquete paquete, int size) {
         for (Router destino : listaVecinos) {
             try {
                 System.out.println("Enviando desde el puerto " + sendSocket.getLocalPort() + " hacia  IP:" + destino.getIp().getHostAddress() + ":" + destino.getPuerto() + "...");
 
                 ArrayList<Encaminamiento> encaminamientos = paquete.getEncaminamientosDelPacket();
                 Paquete aux = new Paquete(Comando.RESPONSE, size);
-                for (int i = 0; i < encaminamientos.size(); i++) {
-                    Encaminamiento encaminamiento = encaminamientos.get(i);
+                for (Encaminamiento encaminamiento : encaminamientos) {
                     if (encaminamiento.getSiguienteRout().getIp().getHostAddress().replaceAll("/", "").contains(destino.getIp().getHostAddress().replaceAll("/", ""))) {
                         encaminamiento.setDistancia(16);
                     }
@@ -83,7 +79,7 @@ public class Servidor {
         System.out.print("Leyendo fichero de configuración... ");
 
         String linea, info;
-        String ficheroConf = "ripconf-" + ipLocal.getHostAddress() + ".topo"; //TODO OJO, HAY QUE CAMBIAR ESTO AL FORMATO ORIGINAL
+        String ficheroConf = "ripconf-" + ipLocal.getHostAddress() + ".topo";
         FileReader fr = null;
 
         try {
@@ -125,9 +121,8 @@ public class Servidor {
                         }
 
                     } else {
-                        String ipAux = info;
                         String puertoAux = "5512";
-                        Router vecino = new Router(InetAddress.getByName(ipAux), Integer.parseInt(puertoAux));
+                        Router vecino = new Router(InetAddress.getByName(info), Integer.parseInt(puertoAux));
                         listaVecinos.add(vecino);
 
                     }
@@ -137,15 +132,4 @@ public class Servidor {
         System.out.print("Completado con éxito.\n\n");
     }
 
-    public void probarTablas() {
-
-        for (int i = 0; i < listaVecinos.size(); i++) {
-            System.out.println("Vecino " + i + " " + listaVecinos.get(i).getIp() + " puerto: " + listaVecinos.get(i).getPuerto());
-        }
-
-        System.out.println();
-
-        tablaEncaminamiento.imprimirTabla();
-
-    }
 }

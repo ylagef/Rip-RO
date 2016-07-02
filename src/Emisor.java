@@ -4,12 +4,12 @@ import java.util.Map;
 /**
  * Created by Yeray on 06/05/2016.
  */
-public class Emisor implements Runnable {
+class Emisor implements Runnable {
 
-    InetAddress ipLocal;
+    private InetAddress ipLocal;
     private TablaEncaminamiento tablaEncaminamiento;
 
-    public Emisor(TablaEncaminamiento tablaEncaminamiento, InetAddress ipLocal) {
+    Emisor(TablaEncaminamiento tablaEncaminamiento, InetAddress ipLocal) {
         this.tablaEncaminamiento = tablaEncaminamiento;
         this.ipLocal = ipLocal;
     }

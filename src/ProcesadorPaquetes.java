@@ -1,25 +1,26 @@
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
  * Created by Yeray on 21/05/2016.
  */
-public class ProcesadorPaquetes implements Runnable {
+class ProcesadorPaquetes implements Runnable {
     private final int puerto;
-    ArrayBlockingQueue<DatagramPacket> recibidos;
+    private ArrayBlockingQueue<DatagramPacket> recibidos;
     private Receptor receptor;
     private TablaEncaminamiento tablaEncaminamiento;
-    private InetAddress emisor;
 
     ProcesadorPaquetes(Receptor receptor, ArrayBlockingQueue<DatagramPacket> recibidos,
-                       TablaEncaminamiento tablaEncaminamiento, InetAddress emisor, int puerto) {
+                       TablaEncaminamiento tablaEncaminamiento, int puerto) {
         this.receptor = receptor;
         this.recibidos = recibidos;
         this.tablaEncaminamiento = tablaEncaminamiento;
-        this.emisor = emisor;
         this.puerto = puerto;
     }
 
@@ -60,7 +61,7 @@ public class ProcesadorPaquetes implements Runnable {
         actualizarTabla(encaminamientos, new Router(receivedPacket.getAddress(), receivedPacket.getPort()));
     }
 
-    public void actualizarTabla(ArrayList<Encaminamiento> encaminamientos, Router routerEmisor) throws UnknownHostException {
+    private void actualizarTabla(ArrayList<Encaminamiento> encaminamientos, Router routerEmisor) throws UnknownHostException {
 
         HashMap<String, Encaminamiento> tabla = tablaEncaminamiento.getTabla();
 
@@ -68,9 +69,7 @@ public class ProcesadorPaquetes implements Runnable {
                 routerEmisor, 1);
         tabla.put(vecino.getDireccionInet().getHostAddress(), vecino);
 
-        for (int i = 0; i < encaminamientos.size(); i++) {
-
-            Encaminamiento encaminamientoNuevo = encaminamientos.get(i); //El que nos mandó el vecino
+        for (Encaminamiento encaminamientoNuevo : encaminamientos) {
 
             if (encaminamientoNuevo.getDistanciaInt() >= 16) continue;
 
@@ -82,11 +81,10 @@ public class ProcesadorPaquetes implements Runnable {
             boolean pasa = false;
             boolean borrarAlgo = false;
             String borrar = "";
-            Iterator it = tabla.entrySet().iterator();
 
-            while (it.hasNext()) {
+            for (Object o : tabla.entrySet()) {
                 try {
-                    Map.Entry e = (Map.Entry) it.next();
+                    Map.Entry e = (Map.Entry) o;
 
                     if (!encaminamientoNuevo.getDireccionInet().getHostAddress().contains(((Encaminamiento) e.getValue()).getDireccionInet().getHostAddress())) {
                         if (mismaSubred(encaminamientoNuevo, (Encaminamiento) e.getValue())) {
@@ -95,7 +93,7 @@ public class ProcesadorPaquetes implements Runnable {
                                 //Borrar el viejo y meter el nuevo
                                 borrar = ((Encaminamiento) e.getValue()).getDireccionInet().getHostAddress();
                                 borrarAlgo = true;
-                            } else if (encaminamientoNuevo.getMascaraInt() > ((Encaminamiento) e.getValue()).getMascaraInt()) {
+                            } else if (encaminamientoNuevo.getMascaraInt() >= ((Encaminamiento) e.getValue()).getMascaraInt()) {
                                 pasa = true;
                                 break;
                             }
@@ -113,7 +111,7 @@ public class ProcesadorPaquetes implements Runnable {
                             break;
                         }
                     }
-                } catch (ConcurrentModificationException e) {
+                } catch (ConcurrentModificationException ignored) {
 
                 }
             }
@@ -160,7 +158,7 @@ public class ProcesadorPaquetes implements Runnable {
         }
     }
 
-    boolean mismaSubred(Encaminamiento e1, Encaminamiento e2) throws UnknownHostException {
+    private boolean mismaSubred(Encaminamiento e1, Encaminamiento e2) throws UnknownHostException {
         InetAddress net1 = netFromEnc(e1.getDireccionInet(), e1.getMascaraInt()); //net del e1
         InetAddress net2 = netFromEnc(e2.getDireccionInet(), e2.getMascaraInt()); //net del e2
         InetAddress net3 = netFromEnc(net2, e1.getMascaraInt());
@@ -168,8 +166,8 @@ public class ProcesadorPaquetes implements Runnable {
         return net1.getHostAddress().replaceAll("/", "").contentEquals(net3.getHostAddress().replaceAll("/", ""));
     }
 
-    InetAddress netFromEnc(InetAddress dir, int masc) throws UnknownHostException {
-        int mascara = 0xffffffff << (32 - Integer.valueOf(masc));
+    private InetAddress netFromEnc(InetAddress dir, int masc) throws UnknownHostException {
+        int mascara = 0xffffffff << (32 - masc);
         byte[] mascaraBytes = new byte[]{
                 (byte) (mascara >>> 24), (byte) (mascara >> 16 & 0xff), (byte) (mascara >> 8 & 0xff), (byte) (mascara & 0xff)};
 

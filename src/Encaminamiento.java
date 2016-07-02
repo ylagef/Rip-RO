@@ -5,11 +5,9 @@ import java.nio.ByteBuffer;
 /**
  * Created by Yeray on 06/05/2016.
  */
-public class Encaminamiento {
+class Encaminamiento {
 
-    long tiempoInsercion = System.nanoTime(); //Momento en que se inserta en la tabla de encaminamiento.
-
-    boolean basura = false;
+    private long tiempoInsercion = System.nanoTime(); //Momento en que se inserta en la tabla de encaminamiento.
 
     //Para facilitar el método toString
     private InetAddress direccionInet;
@@ -24,7 +22,7 @@ public class Encaminamiento {
     private byte[] distancia;
 
     //Este constructor es para las subredes directamente conectadas (distancia 1).
-    public Encaminamiento(InetAddress direccion, int masc) {
+    Encaminamiento(InetAddress direccion, int masc) {
         direccionInet = direccion;
         mascaraInt = masc;
 
@@ -34,9 +32,8 @@ public class Encaminamiento {
         this.direccion = dirB.array();
 
         int mascara1 = 0xffffffff << (32 - masc);
-        byte[] mascaraBytes = new byte[]{
+        this.mascara = new byte[]{
                 (byte) (mascara1 >>> 24), (byte) (mascara1 >> 16 & 0xff), (byte) (mascara1 >> 8 & 0xff), (byte) (mascara1 & 0xff)};
-        this.mascara = mascaraBytes;
 
         ByteBuffer distB = ByteBuffer.allocate(4);
         distB.put((byte) 0);
@@ -46,7 +43,7 @@ public class Encaminamiento {
         this.distancia = distB.array();
     }
 
-    public Encaminamiento(InetAddress direccion, int masc, Router siguiente, int distancia) {
+    Encaminamiento(InetAddress direccion, int masc, Router siguiente, int distancia) {
         direccionInet = direccion;
         distanciaInt = distancia;
         mascaraInt = masc;
@@ -57,9 +54,8 @@ public class Encaminamiento {
         this.direccion = dirB.array();
 
         int mascara1 = 0xffffffff << (32 - masc);
-        byte[] mascaraBytes = new byte[]{
+        this.mascara = new byte[]{
                 (byte) (mascara1 >>> 24), (byte) (mascara1 >> 16 & 0xff), (byte) (mascara1 >> 8 & 0xff), (byte) (mascara1 & 0xff)};
-        this.mascara = mascaraBytes;
 
         ByteBuffer distB = ByteBuffer.allocate(4);
         distB.put((byte) 0);
@@ -73,15 +69,11 @@ public class Encaminamiento {
         this.siguiente = sigB.array();
     }
 
-    public byte[] getDireccion() {
+    byte[] getDireccion() {
         return direccion;
     }
 
-    public byte[] getMascara() {
-        return mascara;
-    }
-
-    public byte[] getSiguiente() {
+    byte[] getSiguiente() {
         if (siguiente != null) {
             return siguiente;
         } else {
@@ -96,11 +88,11 @@ public class Encaminamiento {
 
     }
 
-    public byte[] getDistancia() {
+    byte[] getDistancia() {
         return distancia;
     }
 
-    public void setDistancia(int distancia) {
+    void setDistancia(int distancia) {
         this.distanciaInt = distancia;
         ByteBuffer distB = ByteBuffer.allocate(4);
         distB.put((byte) 0);
@@ -110,28 +102,27 @@ public class Encaminamiento {
         this.distancia = distB.array();
     }
 
-    public InetAddress getDireccionInet() {
+    InetAddress getDireccionInet() {
         return direccionInet;
     }
 
-    public Router getSiguienteRout() {
+    Router getSiguienteRout() {
         return siguienteRout;
     }
 
-    public int getMascaraInt() {
+    int getMascaraInt() {
         return mascaraInt;
     }
 
-    public int getDistanciaInt() {
+    int getDistanciaInt() {
         return distanciaInt;
     }
 
-    public void resetTimer() {
+    void resetTimer() {
         tiempoInsercion = System.nanoTime();
-        return;
     }
 
-    public long getTimer() {
+    long getTimer() {
         return tiempoInsercion;
     }
 

@@ -8,7 +8,7 @@ import java.util.Arrays;
 /**
  * Created by Yeray on 07/05/2016.
  */
-public class Paquete {
+class Paquete {
 
     //                      Para RIPv2 hay un formato de paquete que es:
     // Comando | Numero Version | No usado (0) | AFI | Route TAG | Destino | Mask | Por donde | Distancia
@@ -81,7 +81,7 @@ public class Paquete {
         datos = ByteBuffer.wrap(datagramPacket);
     }
 
-    public static void genPassword(String pass) {
+    static void genPassword(String pass) {
         ByteBuffer buffer = null;
 
         if (pass.length() <= 16) {
@@ -106,7 +106,7 @@ public class Paquete {
 
     }
 
-    public static int convertNetmaskToCIDR(InetAddress netmask) {
+    private static int convertNetmaskToCIDR(InetAddress netmask) {
 
         byte[] netmaskBytes = netmask.getAddress();
         int cidr = 0;
@@ -151,7 +151,7 @@ public class Paquete {
         datos.put(10 + indice * 20, direccion[2]);
         datos.put(11 + indice * 20, direccion[3]);
 
-        int mascara1 = 0xffffffff << (32 - Integer.valueOf(e.getMascaraInt()));
+        int mascara1 = 0xffffffff << (32 - e.getMascaraInt());
         byte[] mascaraBytes = new byte[]{
                 (byte) (mascara1 >>> 24), (byte) (mascara1 >> 16 & 0xff), (byte) (mascara1 >> 8 & 0xff), (byte) (mascara1 & 0xff)};
 
@@ -180,9 +180,7 @@ public class Paquete {
             p.addEncaminamiento(e);
         }
 
-        DatagramPacket dp = new DatagramPacket(p.datos.array(), p.datos.limit(), iPdestino, puertoDestino);
-
-        return dp;
+        return new DatagramPacket(p.datos.array(), p.datos.limit(), iPdestino, puertoDestino);
     }
 
     ArrayList<Encaminamiento> getEncaminamientosDelPacket() {
@@ -217,7 +215,7 @@ public class Paquete {
         return encaminamientos;
     }
 
-    public boolean isPassValid() {
+    boolean isPassValid() {
         byte[] passToValidate = new byte[16];
         for (int i = 8; i < 24; i++) {
             passToValidate[i - 8] = datos.get(i);

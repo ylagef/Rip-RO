@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * Created by Yeray on 04/05/2016.
  */
-public class TablaEncaminamiento {
+class TablaEncaminamiento {
 
     /*Esta clase será la de la tabla de encaminamiento propia de cada Router, con sus datos privados y
     getters y setters que el Router utiliza para comparar y procesar.
@@ -14,16 +14,12 @@ public class TablaEncaminamiento {
 
     private static HashMap<String, Encaminamiento> tabla = new HashMap<>();
 
-    public void put(InetAddress direccion, Encaminamiento encaminamiento) {
+    void put(InetAddress direccion, Encaminamiento encaminamiento) {
         String dir = direccion.getHostAddress();
         tabla.put(dir, encaminamiento);
     }
 
-    public Encaminamiento get(InetAddress direccion) {
-        return tabla.get(direccion.getHostAddress());
-    }
-
-    public void imprimirTabla() {
+    void imprimirTabla() {
         try {
             for (Map.Entry<String, Encaminamiento> e : tabla.entrySet()) {
                 e.getKey();
@@ -31,20 +27,19 @@ public class TablaEncaminamiento {
                 System.out.println("        " + e.getValue().toString());
             }
             System.out.print("\n");
-        }catch(ConcurrentModificationException e){
-            System.out.println("                EXCP");
+        } catch (ConcurrentModificationException ignored) {
         }
     }
 
-    public int size() {
+    int size() {
         return tabla.size();
     }
 
-    public HashMap<String, Encaminamiento> getTabla() {
+    HashMap<String, Encaminamiento> getTabla() {
         return tabla;
     }
 
-    public void compruebaTimeouts() {
+    void compruebaTimeouts() {
         /* Comprueba que los tiempos no hayan pasado */
         try {
             for (Map.Entry<String, Encaminamiento> e : tabla.entrySet()) {
@@ -75,7 +70,6 @@ public class TablaEncaminamiento {
             compruebaTimeouts();
         }
 
-        return;
     }
 
 }

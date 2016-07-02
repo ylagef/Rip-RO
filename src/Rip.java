@@ -6,8 +6,8 @@ import java.util.Enumeration;
 
 public class Rip {
 
-    static InetAddress iplocal = null;
-    static int puertolocal = 5512;
+    private static InetAddress iplocal = null;
+    private static int puertolocal = 5512;
 
     public static void main(String[] args) throws IOException {
 
@@ -23,7 +23,6 @@ public class Rip {
             password = br.readLine();
             if (password.length() < 1) {
                 System.out.println("Debe tener al menos un caracter.");
-                continue;
             } else {
                 sizeMal = false;
             }
@@ -36,7 +35,7 @@ public class Rip {
         //server.probarTablas(); //Imprime las tablas para probar qué tienen.
     }
 
-    public static void configIP(String[] args) throws UnknownHostException, SocketException {
+    private static void configIP(String[] args) throws UnknownHostException, SocketException {
 
         if (args.length != 0) {
 

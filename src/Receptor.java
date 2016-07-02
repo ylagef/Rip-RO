@@ -9,14 +9,14 @@ import java.util.concurrent.ArrayBlockingQueue;
 /**
  * Created by Yeray on 06/05/2016.
  */
-public class Receptor implements Runnable {
+class Receptor implements Runnable {
 
     private TablaEncaminamiento tablaEncaminamiento;
     private InetAddress ipLocal;
     private int puertoLocal;
-    private ArrayBlockingQueue<DatagramPacket> recibidos = new ArrayBlockingQueue<DatagramPacket>(100);
+    private ArrayBlockingQueue<DatagramPacket> recibidos = new ArrayBlockingQueue<>(100);
 
-    public Receptor(TablaEncaminamiento tablaEncaminamiento, InetAddress ipLocal, int puertoLocal) {
+    Receptor(TablaEncaminamiento tablaEncaminamiento, InetAddress ipLocal, int puertoLocal) {
         this.tablaEncaminamiento = tablaEncaminamiento;
         this.ipLocal = ipLocal;
         this.puertoLocal = puertoLocal;
@@ -24,12 +24,8 @@ public class Receptor implements Runnable {
 
     }
 
-    public InetAddress getIpLocal() {
+    InetAddress getIpLocal() {
         return ipLocal;
-    }
-
-    public int getPuertoLocal() {
-        return puertoLocal;
     }
 
     @Override
@@ -53,14 +49,14 @@ public class Receptor implements Runnable {
             timeout = timeout - (actual.getTime() - inicio.getTime());
             Servidor.receptionSocket.setSoTimeout((int) timeout);
 
-            DatagramPacket recibido = new DatagramPacket(new byte[504], 504); //TODO ESTO CREA UN BUFFER DEMASIADO GRANDE, (se soluciona capando al procesar lo recibido)
+            DatagramPacket recibido = new DatagramPacket(new byte[504], 504);
 
 
             Servidor.receptionSocket.receive(recibido);
 
             recibidos.add(recibido);
 
-            ProcesadorPaquetes procesadorPaquetes = new ProcesadorPaquetes(this, recibidos, tablaEncaminamiento, recibido.getAddress(), recibido.getPort());
+            ProcesadorPaquetes procesadorPaquetes = new ProcesadorPaquetes(this, recibidos, tablaEncaminamiento, recibido.getPort());
             (new Thread(procesadorPaquetes)).start();
 
         } catch (SocketTimeoutException e) {
@@ -69,8 +65,6 @@ public class Receptor implements Runnable {
         } catch (IllegalArgumentException e) {
             System.out.println("    Tiempo de escucha finalizado.\n");
             continuar = false;
-        } catch (SocketException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
