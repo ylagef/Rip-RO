@@ -103,6 +103,10 @@ public class ProcesadorPaquetes implements Runnable {
                                 break;
                             } else if (mismaSubred((Encaminamiento) e.getValue(), encaminamientoNuevo)) {
                                 //No se añade
+                                if (((encaminamientoNuevo.getDistanciaInt() + 1) < ((Encaminamiento) e.getValue()).getDistanciaInt()) && (encaminamientoNuevo.getDistanciaInt() < 16)) {
+                                    pasa=false;
+                                    break;
+                                }
                                 pasa = true;
                                 break;
                             }
