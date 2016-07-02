@@ -71,39 +71,11 @@ class Paquete {
         datos.put((byte) 0);                             //No usado
 
         //Datos
-
         int desde = 24 + (20 * (tableSize));
-
         datos.put(desde, (byte) 0xFF);                              //No usado
         datos.put(desde + 1, (byte) 0xFF);                          //No usado
         datos.put(desde + 2, (byte) 0x00);                          //No usado
         datos.put(desde + 3, (byte) 0x01);                          //No usado
-
-        authData = "hola";
-        MessageDigest mDigest = MessageDigest.getInstance("MD5");
-        byte[] result = mDigest.digest(authData.getBytes());
-
-        datos.put(desde + 4, result[0]);                           //Auth Data
-        datos.put(desde + 5, result[1]);                           //Auth Data
-        datos.put(desde + 6, result[2]);                           //Auth Data
-        datos.put(desde + 7, result[3]);                           //Auth Data
-        datos.put(desde + 8, result[4]);                           //Auth Data
-        datos.put(desde + 9, result[5]);                           //Auth Data
-        datos.put(desde + 10, result[6]);                           //Auth Data
-        datos.put(desde + 11, result[7]);                           //Auth Data
-        datos.put(desde + 12, result[8]);                           //Auth Data
-        datos.put(desde + 13, result[9]);                           //Auth Data
-        datos.put(desde + 14, result[10]);                           //Auth Data
-        datos.put(desde + 15, result[11]);                           //Auth Data
-        datos.put(desde + 16, result[12]);                           //Auth Data
-        datos.put(desde + 17, result[13]);                           //Auth Data
-        datos.put(desde + 18, result[14]);                           //Auth Data
-        datos.put(desde + 19, result[15]);                           //Auth Data
-        /*datos.put(desde + 20, result[16]);                           //Auth Data
-        datos.put(desde + 21, result[17]);                           //Auth Data
-        datos.put(desde + 22, result[18]);                           //Auth Data
-        datos.put(desde + 23, result[19]);                           //Auth Data
-*/
     }
 
     Paquete(byte[] datagramPacket) {
@@ -206,7 +178,7 @@ class Paquete {
 
         ArrayList<Encaminamiento> encaminamientos = new ArrayList<>();
 
-        for (int j = 1; j < ((datos.limit() - 49) / 20) + 1; j++) {
+        for (int j = 1; j < ((datos.limit() - 44) / 20) + 1; j++) {
             try {
                 byte[] nombreIp = new byte[]{datos.get(j * 20 + 8), datos.get(j * 20 + 9), datos.get(j * 20 + 10), datos.get(j * 20 + 11)};
                 InetAddress ip = InetAddress.getByAddress(nombreIp);
@@ -240,5 +212,117 @@ class Paquete {
             passToValidate[i - 8] = datos.get(i);
         }
         return Arrays.equals(passToValidate, password);
+    }
+
+    void autenticarPaquete() throws NoSuchAlgorithmException {
+        int desde = 24 + (20 * (tableSize));
+
+        //Password + Data + Key ID + ADlength + Seq Number
+
+        ByteBuffer encaminamientos;
+        encaminamientos = ByteBuffer.allocate(13 * tableSize);
+
+        for (int i = 1; i < ((datos.limit() - 44) / 20) + 1; i++) {
+            encaminamientos.put(datos.get(i * 20 + 8));
+            encaminamientos.put(datos.get(i * 20 + 9));
+            encaminamientos.put(datos.get(i * 20 + 10));
+            encaminamientos.put(datos.get(i * 20 + 11));
+            encaminamientos.put(datos.get(i * 20 + 12));
+            encaminamientos.put(datos.get(i * 20 + 13));
+            encaminamientos.put(datos.get(i * 20 + 14));
+            encaminamientos.put(datos.get(i * 20 + 15));
+            encaminamientos.put(datos.get(i * 20 + 16));
+            encaminamientos.put(datos.get(i * 20 + 17));
+            encaminamientos.put(datos.get(i * 20 + 18));
+            encaminamientos.put(datos.get(i * 20 + 19));
+            encaminamientos.put(datos.get(i * 20 + 23));
+        }
+
+        ByteBuffer autenticar;
+        autenticar = ByteBuffer.allocate(16 + 13 * tableSize + 1 + 1 + 4);
+
+
+        autenticar.put(password);
+        autenticar.put(encaminamientos.array());
+        autenticar.put((byte) key);
+        autenticar.put((byte) authLength);
+        int ns1 = 0x00FF & ns;
+        int ns2 = 0x00FF & (ns >> 8);
+        int ns3 = 0x00FF & (ns >> 16);
+        int ns4 = 0x00FF & (ns >> 24);
+        autenticar.put((byte) ns4);                           //Seq number
+        autenticar.put((byte) ns3);                           //Seq number
+        autenticar.put((byte) ns2);                           //Seq number
+        autenticar.put((byte) ns1);
+
+        MessageDigest mDigest = MessageDigest.getInstance("MD5");
+        byte[] result = mDigest.digest(autenticar.array());
+
+        datos.put(desde + 4, result[0]);                           //Auth Data
+        datos.put(desde + 5, result[1]);                           //Auth Data
+        datos.put(desde + 6, result[2]);                           //Auth Data
+        datos.put(desde + 7, result[3]);                           //Auth Data
+        datos.put(desde + 8, result[4]);                           //Auth Data
+        datos.put(desde + 9, result[5]);                           //Auth Data
+        datos.put(desde + 10, result[6]);                           //Auth Data
+        datos.put(desde + 11, result[7]);                           //Auth Data
+        datos.put(desde + 12, result[8]);                           //Auth Data
+        datos.put(desde + 13, result[9]);                           //Auth Data
+        datos.put(desde + 14, result[10]);                           //Auth Data
+        datos.put(desde + 15, result[11]);                           //Auth Data
+        datos.put(desde + 16, result[12]);                           //Auth Data
+        datos.put(desde + 17, result[13]);                           //Auth Data
+        datos.put(desde + 18, result[14]);                           //Auth Data
+        datos.put(desde + 19, result[15]);                           //Auth Data
+    }
+
+    boolean esAutentico() throws NoSuchAlgorithmException {
+        String autenticacionRecibida;
+        int desde = 24 + (20 * (tableSize));
+        byte[] auth = new byte[]{
+                datos.get(desde + 4),
+                datos.get(desde + 5),
+                datos.get(desde + 6),
+                datos.get(desde + 7),
+                datos.get(desde + 8),
+                datos.get(desde + 9),
+                datos.get(desde + 10),
+                datos.get(desde + 11),
+                datos.get(desde + 12),
+                datos.get(desde + 13),
+                datos.get(desde + 14),
+                datos.get(desde + 15),
+                datos.get(desde + 16),
+                datos.get(desde + 17),
+                datos.get(desde + 18),
+                datos.get(desde + 19)
+        };
+        autenticacionRecibida = auth.toString();
+
+        String autenticacionActual;
+
+        autenticarPaquete();
+        int d = 24 + (20 * (tableSize));
+        byte[] authent = new byte[]{
+                datos.get(d + 4),
+                datos.get(d + 5),
+                datos.get(d + 6),
+                datos.get(d + 7),
+                datos.get(d + 8),
+                datos.get(d + 9),
+                datos.get(d + 10),
+                datos.get(d + 11),
+                datos.get(d + 12),
+                datos.get(d + 13),
+                datos.get(d + 14),
+                datos.get(d + 15),
+                datos.get(d + 16),
+                datos.get(d + 17),
+                datos.get(d + 18),
+                datos.get(d + 19)
+        };
+        autenticacionActual = authent.toString();
+
+        return autenticacionRecibida.contentEquals(autenticacionActual);
     }
 }

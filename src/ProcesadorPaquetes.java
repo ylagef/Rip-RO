@@ -1,6 +1,7 @@
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
@@ -39,11 +40,13 @@ class ProcesadorPaquetes implements Runnable {
                 procesarPaquete(paquete);
             } catch (UnknownHostException e) {
                 System.out.println("ERROR AL PROCESAR EL PAQUETE.");
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
             }
         }
     }
 
-    private void procesarPaquete(DatagramPacket receivedPacket) throws UnknownHostException { //Tiene que pasar el paquete (DatagramPacket) a ArrayList.
+    private void procesarPaquete(DatagramPacket receivedPacket) throws UnknownHostException, NoSuchAlgorithmException { //Tiene que pasar el paquete (DatagramPacket) a ArrayList.
 
         if (receivedPacket.getPort() != puerto) {
             System.out.println("Puerto incorrecto.");
@@ -52,12 +55,15 @@ class ProcesadorPaquetes implements Runnable {
 
         byte[] p = receivedPacket.getData();
 
-        if (!new Paquete(p).isPassValid()) {
-            System.out.println("Contraseña incorrecta.");
+        Paquete recibido = new Paquete(p);
+
+        //Autenticar
+        if (recibido.esAutentico()) {
+            System.out.println("Es autentico.");
+        } else {
+            System.out.println("No es autentico.");
             return;
         }
-
-        Paquete recibido = new Paquete(p);
 
         ArrayList<Encaminamiento> encaminamientos = recibido.getEncaminamientosDelPacket();
         actualizarTabla(encaminamientos, new Router(receivedPacket.getAddress(), receivedPacket.getPort()));
