@@ -91,8 +91,6 @@ public class ProcesadorPaquetes implements Runnable {
                     if (encaminamientoNuevo.getMascaraInt() != ((Encaminamiento) e.getValue()).getMascaraInt()) {
 
                         if (mismaSubred(encaminamientoNuevo, (Encaminamiento) e.getValue())) {
-                            System.out.println("    " + encaminamientoNuevo.getDireccionInet().getHostAddress() + "/" + encaminamientoNuevo.getMascaraInt() + " es mayor subred que " +
-                                    ((Encaminamiento) e.getValue()).getDireccionInet().getHostAddress() + "/" + ((Encaminamiento) e.getValue()).getMascaraInt());
 
                             if (((encaminamientoNuevo.getDistanciaInt() + 1) <= ((Encaminamiento) e.getValue()).getDistanciaInt()) && (encaminamientoNuevo.getDistanciaInt() < 16)) {
                                 //Borrar el viejo y meter el nuevo
