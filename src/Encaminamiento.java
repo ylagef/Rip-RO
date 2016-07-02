@@ -143,7 +143,7 @@ public class Encaminamiento {
                     + "\t]";
         }
 
-        return "[\t" + direccionInet.getHostName() + "/" + mascaraInt + "\t\t|\t\t" + distanciaInt + "\t\t]";
+        return "[\t" + direccionInet.getHostAddress() + "/" + mascaraInt + "\t\t|\t\t" + distanciaInt + "\t\t]";
 
     }
 }
