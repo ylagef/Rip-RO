@@ -2,11 +2,12 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
-import java.util.concurrent.LinkedBlockingQueue;
 
 enum Comando {
 
@@ -29,12 +30,8 @@ class Servidor {
      */
 
     static DatagramSocket receptionSocket;
-    //Triggered Updates
-    static LinkedBlockingQueue<Encaminamiento> TriggeredPackets = new LinkedBlockingQueue<>();
-    static volatile TablaEncaminamiento entryTable = new TablaEncaminamiento(TriggeredPackets);
     private static DatagramSocket sendSocket;
     private static ArrayList<Router> listaVecinos = new ArrayList<>();
-    Thread triggeredUpdateThread = new Thread(new TriggeredUpdate(TriggeredPackets));
     private InetAddress ipLocal;
     private TablaEncaminamiento tablaEncaminamiento = new TablaEncaminamiento();
 
@@ -42,7 +39,6 @@ class Servidor {
         this.ipLocal = ipLocal;
 
         procesarFicheroConfiguracion();
-        triggeredUpdateThread.start();
 
         while (true) {
             sendSocket = new DatagramSocket(puerto);
@@ -73,9 +69,21 @@ class Servidor {
                     aux.addEncaminamiento(encaminamiento);
                 }
 
-                sendSocket.send(aux.getDatagramPacket(destino.getIp(), destino.getPuerto()));
+                Paquete p = new Paquete(Comando.RESPONSE, size);
+
+                for (Encaminamiento e : aux.getEncaminamientosDelPacket()) {
+                    if (e.getSiguienteRout().getIp().getHostAddress().equals(destino.getIp()))
+                        e.setDistancia(16);
+                    p.addEncaminamiento(e);
+                }
+
+                DatagramPacket dp = new DatagramPacket(paquete.datos.array(), paquete.datos.limit(), destino.getIp(), destino.getPuerto());
+
+                sendSocket.send(dp);
             } catch (IOException e) {
                 System.out.println("ERROR EN EL ENVÍO");
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
             }
         }
     }

@@ -1,3 +1,4 @@
+import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -8,7 +9,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class TriggeredUpdate implements Runnable {
     LinkedBlockingQueue<Encaminamiento> triggeredPaquetes;
     private LinkedList<Encaminamiento> paquetesTriggeredPendientes = new LinkedList<>();
-
 
     TriggeredUpdate(LinkedBlockingQueue<Encaminamiento> link) {
         this.triggeredPaquetes = link;
@@ -44,11 +44,15 @@ public class TriggeredUpdate implements Runnable {
             }
             System.out.println("TRIGGERED UPDATE");
             triggeredPaquetes.drainTo(paquetesTriggeredPendientes);
-            Servidor.envioUnicast(getTriggeredPaquete(), triggeredPaquetes.size());
+            try {
+                Servidor.envioUnicast(getTriggeredPaquete(), triggeredPaquetes.size());
+            } catch (NoSuchAlgorithmException e1) {
+                e1.printStackTrace();
+            }
         }
     }
 
-    private Paquete getTriggeredPaquete() {
+    private Paquete getTriggeredPaquete() throws NoSuchAlgorithmException {
         Paquete p = new Paquete(Comando.RESPONSE, paquetesTriggeredPendientes.size());
         System.err.println("-----TRIGGERED-------");
 

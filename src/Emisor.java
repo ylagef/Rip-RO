@@ -1,4 +1,5 @@
 import java.net.InetAddress;
+import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 /**
@@ -16,10 +17,14 @@ class Emisor implements Runnable {
 
     @Override
     public void run() {
-        Servidor.envioUnicast(mensajeActualizado(), tablaEncaminamiento.size());
+        try {
+            Servidor.envioUnicast(mensajeActualizado(), tablaEncaminamiento.size());
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
     }
 
-    private Paquete mensajeActualizado() {
+    private Paquete mensajeActualizado() throws NoSuchAlgorithmException {
         System.out.println("\t\t **********************    TABLA ACTUAL   **********************");
         System.out.println("\t\t[\t\t SUBRED \t\t|\t MÉTRICA \t|\t SIGUIENTE SALTO \t]");
         tablaEncaminamiento.imprimirTabla();

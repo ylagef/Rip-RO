@@ -15,12 +15,14 @@ class ProcesadorPaquetes implements Runnable {
     private ArrayBlockingQueue<DatagramPacket> recibidos;
     private Receptor receptor;
     private TablaEncaminamiento tablaEncaminamiento;
+    private InetAddress emisor;
 
     ProcesadorPaquetes(Receptor receptor, ArrayBlockingQueue<DatagramPacket> recibidos,
-                       TablaEncaminamiento tablaEncaminamiento, int puerto) {
+                       TablaEncaminamiento tablaEncaminamiento, InetAddress emisor, int puerto) {
         this.receptor = receptor;
         this.recibidos = recibidos;
         this.tablaEncaminamiento = tablaEncaminamiento;
+        this.emisor = emisor;
         this.puerto = puerto;
     }
 

@@ -56,7 +56,7 @@ class Receptor implements Runnable {
 
             recibidos.add(recibido);
 
-            ProcesadorPaquetes procesadorPaquetes = new ProcesadorPaquetes(this, recibidos, tablaEncaminamiento, recibido.getPort());
+            ProcesadorPaquetes procesadorPaquetes = new ProcesadorPaquetes(this, recibidos, tablaEncaminamiento, recibido.getAddress(), recibido.getPort());
             (new Thread(procesadorPaquetes)).start();
 
         } catch (SocketTimeoutException e) {
