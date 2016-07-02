@@ -87,29 +87,29 @@ public class ProcesadorPaquetes implements Runnable {
             while (it.hasNext()) {
                 try {
                     Map.Entry e = (Map.Entry) it.next();
+
                     if (!encaminamientoNuevo.getDireccionInet().getHostAddress().contains(((Encaminamiento) e.getValue()).getDireccionInet().getHostAddress())) {
-                        if (encaminamientoNuevo.getMascaraInt() != ((Encaminamiento) e.getValue()).getMascaraInt()) {
+                        if (mismaSubred(encaminamientoNuevo, (Encaminamiento) e.getValue())) {
 
-                            if (mismaSubred(encaminamientoNuevo, (Encaminamiento) e.getValue())) {
-
-                                if (((encaminamientoNuevo.getDistanciaInt() + 1) <= ((Encaminamiento) e.getValue()).getDistanciaInt()) && (encaminamientoNuevo.getDistanciaInt() < 16)) {
-                                    //Borrar el viejo y meter el nuevo
-                                    borrar = ((Encaminamiento) e.getValue()).getDireccionInet().getHostAddress();
-                                    borrarAlgo = true;
-                                }
-
-                                //La que nos mandan es mejor, así que la añadimos pero dejamos la que tenemos ya que a la nuestra llegamos antes nosotros.
-                                pasa = false;
-                                break;
-                            } else if (mismaSubred((Encaminamiento) e.getValue(), encaminamientoNuevo)) {
-                                //No se añade
-                                if (((encaminamientoNuevo.getDistanciaInt() + 1) < ((Encaminamiento) e.getValue()).getDistanciaInt()) && (encaminamientoNuevo.getDistanciaInt() < 16)) {
-                                    pasa=false;
-                                    break;
-                                }
+                            if (((encaminamientoNuevo.getDistanciaInt() + 1) <= ((Encaminamiento) e.getValue()).getDistanciaInt()) && (encaminamientoNuevo.getDistanciaInt() < 16)) {
+                                //Borrar el viejo y meter el nuevo
+                                borrar = ((Encaminamiento) e.getValue()).getDireccionInet().getHostAddress();
+                                borrarAlgo = true;
+                            } else {
                                 pasa = true;
                                 break;
                             }
+                            //La que nos mandan es mejor, así que la añadimos pero dejamos la que tenemos ya que a la nuestra llegamos antes nosotros.
+                            pasa = false;
+                            break;
+                        } else if (mismaSubred((Encaminamiento) e.getValue(), encaminamientoNuevo)) {
+                            //No se añade
+                            if (((encaminamientoNuevo.getDistanciaInt() + 1) < ((Encaminamiento) e.getValue()).getDistanciaInt()) && (encaminamientoNuevo.getDistanciaInt() < 16)) {
+                                pasa = false;
+                                break;
+                            }
+                            pasa = true;
+                            break;
                         }
                     }
                 } catch (ConcurrentModificationException e) {
