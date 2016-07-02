@@ -95,10 +95,11 @@ public class ProcesadorPaquetes implements Runnable {
                                 //Borrar el viejo y meter el nuevo
                                 borrar = ((Encaminamiento) e.getValue()).getDireccionInet().getHostAddress();
                                 borrarAlgo = true;
-                            } else {
+                            } else if (encaminamientoNuevo.getMascaraInt() > ((Encaminamiento) e.getValue()).getMascaraInt()) {
                                 pasa = true;
                                 break;
                             }
+
                             //La que nos mandan es mejor, así que la añadimos pero dejamos la que tenemos ya que a la nuestra llegamos antes nosotros.
                             pasa = false;
                             break;
