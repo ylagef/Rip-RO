@@ -33,14 +33,14 @@ public class ProcesadorPaquetes implements Runnable {
                 e.printStackTrace();
             }
             try {
-                procesarPaquete(paquete);
+                procesarPaquete(paquete, new Router(emisor, puerto));
             } catch (UnknownHostException e) {
                 System.out.println("ERROR AL PROCESAR EL PAQUETE.");
             }
         }
     }
 
-    private void procesarPaquete(DatagramPacket receivedPacket) throws UnknownHostException { //Tiene que pasar el paquete (DatagramPacket) a ArrayList.
+    private void procesarPaquete(DatagramPacket receivedPacket, Router r) throws UnknownHostException { //Tiene que pasar el paquete (DatagramPacket) a ArrayList.
 
 
         if (receivedPacket.getPort() != puerto) {
@@ -58,22 +58,22 @@ public class ProcesadorPaquetes implements Runnable {
         Paquete recibido = new Paquete(p);
 
         ArrayList<Encaminamiento> encaminamientos = recibido.getEncaminamientosDelPacket();
-        actualizarTabla(encaminamientos);
+        actualizarTabla(encaminamientos, r);
     }
 
-    public void actualizarTabla(ArrayList<Encaminamiento> encaminamientos) throws UnknownHostException {
+    public void actualizarTabla(ArrayList<Encaminamiento> encaminamientos, Router routerEmisor) throws UnknownHostException {
 
         HashMap<String, Encaminamiento> tabla = tablaEncaminamiento.getTabla();
 
         Encaminamiento vecino = new Encaminamiento(InetAddress.getByName(emisor.getHostAddress()), 32,
-                new Router(emisor, puerto), 1);
+                routerEmisor, 1);
         tabla.put(vecino.getDireccionInet().getHostAddress(), vecino);
 
         for (int i = 0; i < encaminamientos.size(); i++) {
 
             Encaminamiento encaminamientoNuevo = encaminamientos.get(i); //El que nos mandó el vecino
 
-            //if (encaminamientoNuevo.getDistanciaInt() >= 16) continue;
+            if (encaminamientoNuevo.getDistanciaInt() >= 16) continue;
 
             if (encaminamientoNuevo.getDireccionInet().getHostAddress().contains(receptor.getIpLocal().getHostAddress())) {
                 continue;
@@ -104,8 +104,8 @@ public class ProcesadorPaquetes implements Runnable {
                                 break;
                             } else if (mismaSubred((Encaminamiento) e.getValue(), encaminamientoNuevo)) {
                                 //No se añade
-                                //pasa = true;
-                                continue;
+                                pasa = true;
+                                break;
                             }
                         }
                     }
@@ -120,10 +120,6 @@ public class ProcesadorPaquetes implements Runnable {
 
                 Encaminamiento encaminamientoActual =
                         tabla.get(encaminamientoNuevo.getDireccionInet().getHostAddress()); //El de la tabla actual
-
-                if (encaminamientoNuevo.getDireccionInet().getHostAddress().contains(receptor.getIpLocal().getHostAddress())) {
-                    continue;
-                }
 
                 if (encaminamientoActual.getDireccionInet().getHostAddress().contains(receptor.getIpLocal().getHostAddress())) {
                     continue;
@@ -142,23 +138,20 @@ public class ProcesadorPaquetes implements Runnable {
 
                     tabla.remove(encaminamientoActual.getDireccionInet().getHostAddress());
                     Encaminamiento nuevo = new Encaminamiento(encaminamientoNuevo.getDireccionInet(),
-                            encaminamientoNuevo.getMascaraInt(), new Router(emisor, puerto),
+                            encaminamientoNuevo.getMascaraInt(), routerEmisor,
                             (encaminamientoNuevo.getDistanciaInt() + 1));
                     nuevo.resetTimer(); //Pone el timer a la hora actual.
                     tabla.put(encaminamientoNuevo.getDireccionInet().getHostAddress(), nuevo);
                 }
-
                 encaminamientoActual.resetTimer(); //Se reinicia el tiempo.
 
             } else { //No tengo la subred. Añade a la tabla el encaminamiento
-                if (encaminamientoNuevo.getDistanciaInt() < 16) { //Por si soy el sig salto y me mandó dist 16
-                    Encaminamiento nuevo = new Encaminamiento(encaminamientoNuevo.getDireccionInet(),
-                            encaminamientoNuevo.getMascaraInt(), new Router(emisor, puerto),
-                            (encaminamientoNuevo.getDistanciaInt() + 1));
+                Encaminamiento nuevo = new Encaminamiento(encaminamientoNuevo.getDireccionInet(),
+                        encaminamientoNuevo.getMascaraInt(), routerEmisor,
+                        (encaminamientoNuevo.getDistanciaInt() + 1));
 
-                    nuevo.resetTimer();
-                    tabla.put(nuevo.getDireccionInet().getHostAddress(), nuevo);
-                }
+                nuevo.resetTimer();
+                tabla.put(nuevo.getDireccionInet().getHostAddress(), nuevo);
             }
         }
     }
