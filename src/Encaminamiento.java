@@ -7,14 +7,13 @@ import java.nio.ByteBuffer;
  */
 class Encaminamiento {
 
+    public boolean garbage;
     private long tiempoInsercion = System.nanoTime(); //Momento en que se inserta en la tabla de encaminamiento.
-
     //Para facilitar el método toString
     private InetAddress direccionInet;
     private Router siguienteRout;
     private int mascaraInt;
     private int distanciaInt = 1; //Las subredes conectadas están a distancia 0 (directamente conectadas) al router.
-
     //Para crear correctamente el paquete de bytes
     private byte[] direccion;
     private byte[] mascara;
@@ -94,6 +93,7 @@ class Encaminamiento {
 
     void setDistancia(int distancia) {
         this.distanciaInt = distancia;
+
         ByteBuffer distB = ByteBuffer.allocate(4);
         distB.put((byte) 0);
         distB.put((byte) 0);

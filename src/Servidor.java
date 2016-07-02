@@ -6,6 +6,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
+import java.util.concurrent.LinkedBlockingQueue;
 
 enum Comando {
 
@@ -28,8 +29,12 @@ class Servidor {
      */
 
     static DatagramSocket receptionSocket;
+    //Triggered Updates
+    static LinkedBlockingQueue<Encaminamiento> TriggeredPackets = new LinkedBlockingQueue<>();
+    static volatile TablaEncaminamiento entryTable = new TablaEncaminamiento(TriggeredPackets);
     private static DatagramSocket sendSocket;
     private static ArrayList<Router> listaVecinos = new ArrayList<>();
+    Thread triggeredUpdateThread = new Thread(new TriggeredUpdate(TriggeredPackets));
     private InetAddress ipLocal;
     private TablaEncaminamiento tablaEncaminamiento = new TablaEncaminamiento();
 
@@ -37,6 +42,7 @@ class Servidor {
         this.ipLocal = ipLocal;
 
         procesarFicheroConfiguracion();
+        triggeredUpdateThread.start();
 
         while (true) {
             sendSocket = new DatagramSocket(puerto);
