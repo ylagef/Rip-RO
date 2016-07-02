@@ -24,12 +24,16 @@ public class TablaEncaminamiento {
     }
 
     public void imprimirTabla() {
-        for (Map.Entry<String, Encaminamiento> e : tabla.entrySet()) {
-            e.getKey();
-            e.getValue();
-            System.out.println("        " + e.getValue().toString());
+        try {
+            for (Map.Entry<String, Encaminamiento> e : tabla.entrySet()) {
+                e.getKey();
+                e.getValue();
+                System.out.println("        " + e.getValue().toString());
+            }
+            System.out.print("\n");
+        }catch(ConcurrentModificationException e){
+            System.out.println("                EXCP");
         }
-        System.out.print("\n");
     }
 
     public int size() {
