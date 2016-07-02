@@ -33,15 +33,14 @@ public class ProcesadorPaquetes implements Runnable {
                 e.printStackTrace();
             }
             try {
-                procesarPaquete(paquete, new Router(emisor, puerto));
+                procesarPaquete(paquete);
             } catch (UnknownHostException e) {
                 System.out.println("ERROR AL PROCESAR EL PAQUETE.");
             }
         }
     }
 
-    private void procesarPaquete(DatagramPacket receivedPacket, Router r) throws UnknownHostException { //Tiene que pasar el paquete (DatagramPacket) a ArrayList.
-
+    private void procesarPaquete(DatagramPacket receivedPacket) throws UnknownHostException { //Tiene que pasar el paquete (DatagramPacket) a ArrayList.
 
         if (receivedPacket.getPort() != puerto) {
             System.out.println("Puerto incorrecto.");
@@ -58,14 +57,14 @@ public class ProcesadorPaquetes implements Runnable {
         Paquete recibido = new Paquete(p);
 
         ArrayList<Encaminamiento> encaminamientos = recibido.getEncaminamientosDelPacket();
-        actualizarTabla(encaminamientos, r);
+        actualizarTabla(encaminamientos, new Router(receivedPacket.getAddress(), receivedPacket.getPort()));
     }
 
     public void actualizarTabla(ArrayList<Encaminamiento> encaminamientos, Router routerEmisor) throws UnknownHostException {
 
         HashMap<String, Encaminamiento> tabla = tablaEncaminamiento.getTabla();
 
-        Encaminamiento vecino = new Encaminamiento(InetAddress.getByName(emisor.getHostAddress()), 32,
+        Encaminamiento vecino = new Encaminamiento(InetAddress.getByName(routerEmisor.getIp().getHostAddress()), 32,
                 routerEmisor, 1);
         tabla.put(vecino.getDireccionInet().getHostAddress(), vecino);
 
