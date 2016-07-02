@@ -80,6 +80,8 @@ public class ProcesadorPaquetes implements Runnable {
                 continue;
             }
 
+            if(encaminamientoNuevo.getDistanciaInt()>=16) continue;
+
             boolean pasa = false;
             boolean borrarAlgo = false;
             String borrar = "";
@@ -101,7 +103,7 @@ public class ProcesadorPaquetes implements Runnable {
                             //La que nos mandan es mejor, así que la añadimos pero dejamos la que tenemos ya que a la nuestra llegamos antes nosotros.
                             pasa = false;
                             break;
-                        } else {
+                        } else if(mismaSubred((Encaminamiento) e.getValue(),encaminamientoNuevo)){
                             //No se añade
                             pasa = true;
                             continue;
