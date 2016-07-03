@@ -46,8 +46,7 @@ class Paquete {
         datos.put((byte) pl2);                           //RIPv2 packet length
         datos.put((byte) pl1);                           //RIPv2 packet length
 
-        key = 5;
-        datos.put((byte) key);                             //Key ID ¿El puerto?
+        datos.put((byte) key);                           //Key ID ¿El puerto?
         datos.put((byte) authLength);                    //Auth data length
 
         int ns1 = 0x00FF & ns;
@@ -79,6 +78,7 @@ class Paquete {
     Paquete(byte[] datagramPacket) {
         datos = ByteBuffer.allocate(datagramPacket.length);
         datos = ByteBuffer.wrap(datagramPacket);
+        setVars();
         getEncaminamientosDelPacket();
     }
 
@@ -98,9 +98,6 @@ class Paquete {
             pass = pass.substring(0, 16);
             buffer = ByteBuffer.allocate(16);
             buffer.put(pass.getBytes());
-            for (int i = 0; i < (16 - pass.length()); i++) {
-                buffer.put((byte) 0x00);
-            }
         }
 
         password = buffer.array();
@@ -128,6 +125,15 @@ class Paquete {
             }
         }
         return cidr;
+    }
+
+    void setVars() {
+
+        byte[] a1 = new byte[]{datos.get(12), datos.get(13), datos.get(14), datos.get(15)};
+        ByteBuffer wrapped = ByteBuffer.wrap(a1); // big-endian by default
+        this.ns = wrapped.getInt();
+
+        this.key = datos.get(10);
     }
 
     void addEncaminamiento(Encaminamiento e) {
