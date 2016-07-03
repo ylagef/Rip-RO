@@ -16,7 +16,7 @@ class Paquete {
     //                                  En Bytes (octetos)
     private static int numEnc;
     static private byte[] password;
-    private final int key = 5; //La clave de cifrado. Key ID.
+    private final int key = 5; //La clave de cifrado
     public ByteBuffer datos;
     private int ns = 0;
     private int authLength = 16; //MD5
@@ -181,7 +181,7 @@ class Paquete {
     ArrayList<Encaminamiento> getEncaminamientosDelPacket() {
         ArrayList<Encaminamiento> encaminamientos = new ArrayList<>();
         numEnc = 0;
-        for (int j = 1; j < ((datos.limit() - 49) / 20) + 1; j++) {
+        for (int j = 1; j < ((datos.limit() - 44) / 20) + 1; j++) {
             try {
                 byte[] nombreIp = new byte[]{datos.get(j * 20 + 8), datos.get(j * 20 + 9), datos.get(j * 20 + 10), datos.get(j * 20 + 11)};
                 InetAddress ip = InetAddress.getByAddress(nombreIp);

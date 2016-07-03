@@ -62,31 +62,19 @@ class Servidor {
                 System.out.println("Enviando desde el puerto " + sendSocket.getLocalPort() + " hacia " + destino.getIp().getHostAddress() + ":" + destino.getPuerto() + "...");
 
                 ArrayList<Encaminamiento> encaminamientos = paquete.getEncaminamientosDelPacket();
-                //Paquete paquete = new Paquete(Comando.RESPONSE, size);
-                int i = 0;
+                Paquete aux = new Paquete(Comando.RESPONSE, size);
                 for (Encaminamiento encaminamiento : encaminamientos) {
                     if (encaminamiento.getSiguienteRout().getIp().getHostAddress().replaceAll("/", "").contains(destino.getIp().getHostAddress().replaceAll("/", ""))) {
-                        i++;
-                        //encaminamiento.setDistancia(16);
-                        paquete.datos.put(i * 20 + 23, (byte) 16);
+                        encaminamiento.setDistancia(16);
                     }
+                    aux.addEncaminamiento(encaminamiento);
                 }
 
-                /*
-                Paquete p = new Paquete(Comando.RESPONSE, size);
-
-                for (Encaminamiento e : aux.getEncaminamientosDelPacket()) {
-                    if (e.getSiguienteRout().getIp().getHostAddress().equals(destino.getIp()))
-                        e.setDistancia(16);
-                    p.addEncaminamiento(e);
-                }
-                */
-
-                paquete.setSeqNumber(ns);
+                aux.setSeqNumber(ns);
                 ns++;
 
-                DatagramPacket dp = new DatagramPacket(paquete.datos.array(), paquete.datos.limit(), destino.getIp(), destino.getPuerto());
-                paquete.autenticarPaquete();
+                DatagramPacket dp = new DatagramPacket(aux.datos.array(), aux.datos.limit(), destino.getIp(), destino.getPuerto());
+                aux.autenticarPaquete();
 
                 sendSocket.send(dp);
             } catch (IOException e) {
