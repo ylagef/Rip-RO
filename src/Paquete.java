@@ -175,9 +175,7 @@ class Paquete {
     }
 
     ArrayList<Encaminamiento> getEncaminamientosDelPacket() {
-        int cortar = 0;
         ArrayList<Encaminamiento> encaminamientos = new ArrayList<>();
-        int aux = 0;
         numEnc = 0;
         for (int j = 1; j < ((datos.limit() - 49) / 20) + 1; j++) {
             try {
@@ -185,12 +183,10 @@ class Paquete {
                 InetAddress ip = InetAddress.getByAddress(nombreIp);
 
                 if (ip.getHostAddress().contains("0.0.0.0")) {
-                    cortar++;
                     continue;
                 }
 
-                int mascara = 0;
-                aux++;
+                int mascara;
                 try {
                     InetAddress msk = InetAddress.getByAddress(new byte[]{datos.get(j * 20 + 12), datos.get(j * 20 + 13), datos.get(j * 20 + 14), datos.get(j * 20 + 15)});
                     mascara = convertNetmaskToCIDR(msk);
@@ -207,13 +203,6 @@ class Paquete {
             } catch (UnknownHostException e) {
                 System.out.println("EXCEPCION EN:   PAQUETE > getEncaminamientosDelPacket");
             }
-        }
-        if (cortar != 0 && numEnc != 0) {
-            byte[] dn = new byte[aux * 13 + 59];
-            System.arraycopy(datos.array(), 0, dn, 0, (aux * 13) + 59);
-            this.datos = ByteBuffer.allocate(dn.length);
-            datos.put(dn);
-
         }
         return encaminamientos;
     }
@@ -298,7 +287,7 @@ class Paquete {
 
     boolean esAutentico() throws NoSuchAlgorithmException {
         String autenticacionRecibida;
-        int desde = datos.limit() - 16 - 4;
+        int desde = datos.limit() - 19;
 
         for (int x = 0; x < 500; x++) {
             if (datos.get(datos.limit() - x - 1) != 0) {
