@@ -13,15 +13,11 @@ class Receptor implements Runnable {
 
     private TablaEncaminamiento tablaEncaminamiento;
     private InetAddress ipLocal;
-    private int puertoLocal;
     private ArrayBlockingQueue<DatagramPacket> recibidos = new ArrayBlockingQueue<>(100);
 
-    Receptor(TablaEncaminamiento tablaEncaminamiento, InetAddress ipLocal, int puertoLocal) {
+    Receptor(TablaEncaminamiento tablaEncaminamiento, InetAddress ipLocal) {
         this.tablaEncaminamiento = tablaEncaminamiento;
         this.ipLocal = ipLocal;
-        this.puertoLocal = puertoLocal;
-
-
     }
 
     InetAddress getIpLocal() {
