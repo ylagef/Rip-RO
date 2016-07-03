@@ -14,12 +14,12 @@ class Paquete {
     // Comando | Numero Version | No usado (0) | AFI | Route TAG | Destino | Mask | Por donde | Distancia
     //       1                1              2     2           2         4      4           4           4
     //                                  En Bytes (octetos)
-    static int numEnc;
+    private static int numEnc;
     static private byte[] password;
     public ByteBuffer datos;
-    int ns, key = 5;
-    int authLength = 16; //MD5
-    int tableSize;
+    private int ns, key = 5;
+    private int authLength = 16; //MD5
+    private int tableSize;
     private int indice = 0;
 
     Paquete(Comando c, int ts) throws NoSuchAlgorithmException {
