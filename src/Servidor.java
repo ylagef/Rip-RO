@@ -65,11 +65,13 @@ class Servidor {
                 Paquete aux = new Paquete(Comando.RESPONSE, size);
                 int i = 0;
                 for (Encaminamiento encaminamiento : encaminamientos) {
+                    i++;
                     if (encaminamiento.getSiguienteRout().getIp().getHostAddress().replaceAll("/", "").contains(destino.getIp().getHostAddress().replaceAll("/", ""))) {
-                        i++;
+                        aux.addEncaminamiento(encaminamiento);
                         aux.datos.put((i * 20 + 23), (byte) 16);
+                    } else {
+                        aux.addEncaminamiento(encaminamiento);
                     }
-                    aux.addEncaminamiento(encaminamiento);
                 }
 
                 aux.setSeqNumber(ns);
