@@ -59,7 +59,7 @@ class Servidor {
     static void envioUnicast(Paquete paquete, int size) {
         for (Router destino : listaVecinos) {
             try {
-                System.out.println("Enviando desde el puerto " + sendSocket.getLocalPort() + " hacia  IP:" + destino.getIp().getHostAddress() + ":" + destino.getPuerto() + "...");
+                System.out.println("Enviando desde el puerto " + sendSocket.getLocalPort() + " hacia " + destino.getIp().getHostAddress() + ":" + destino.getPuerto() + "...");
 
                 ArrayList<Encaminamiento> encaminamientos = paquete.getEncaminamientosDelPacket();
                 Paquete aux = new Paquete(Comando.RESPONSE, size);
@@ -86,7 +86,7 @@ class Servidor {
 
                 sendSocket.send(dp);
             } catch (IOException e) {
-                System.out.println("ERROR EN EL ENVÍO");
+                System.out.println("ERROR EN EL ENVÍO.");
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }

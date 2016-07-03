@@ -34,7 +34,7 @@ class Receptor implements Runnable {
 
         double aleat = Math.random() * 5 + 0.1;
         long timeout = 10000 + (long) (aleat * 1000);
-
+        long tOut = timeout;
         boolean continuar = true;
 
         try {
@@ -60,10 +60,10 @@ class Receptor implements Runnable {
             (new Thread(procesadorPaquetes)).start();
 
         } catch (SocketTimeoutException e) {
-            System.out.println("    Se ha agotado el tiempo de espera.\n");
+            System.out.println("    Tiempo de recepción finalizado. " + tOut + "ms.\n");
             continuar = false;
         } catch (IllegalArgumentException e) {
-            System.out.println("    Tiempo de escucha finalizado.\n");
+            System.out.println("    Tiempo de recepción finalizado. " + tOut + "ms.\n");
             continuar = false;
         } catch (IOException e) {
             e.printStackTrace();
