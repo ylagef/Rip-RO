@@ -30,6 +30,7 @@ class Servidor {
      */
 
     static DatagramSocket receptionSocket;
+    static int ns = 0;
     private static DatagramSocket sendSocket;
     private static ArrayList<Router> listaVecinos = new ArrayList<>();
     private InetAddress ipLocal;
@@ -77,9 +78,10 @@ class Servidor {
                     p.addEncaminamiento(e);
                 }
 
-                DatagramPacket dp = new DatagramPacket(paquete.datos.array(), paquete.datos.limit(), destino.getIp(), destino.getPuerto());
+                paquete.setSeqNumber(ns);
+                ns++;
 
-                paquete.setSeqNumber();
+                DatagramPacket dp = new DatagramPacket(paquete.datos.array(), paquete.datos.limit(), destino.getIp(), destino.getPuerto());
                 paquete.autenticarPaquete();
 
                 sendSocket.send(dp);

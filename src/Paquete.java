@@ -17,7 +17,8 @@ class Paquete {
     private static int numEnc;
     static private byte[] password;
     public ByteBuffer datos;
-    private int ns, key = 0;
+    private int ns = 0;
+    private int key = 0;
     private int authLength = 16; //MD5
     private int tableSize;
     private int indice = 0;
@@ -46,6 +47,7 @@ class Paquete {
         datos.put((byte) pl2);                           //RIPv2 packet length
         datos.put((byte) pl1);                           //RIPv2 packet length
 
+        key = 5;
         datos.put((byte) key);                           //Key ID ¿El puerto?
         datos.put((byte) authLength);                    //Auth data length
 
@@ -212,8 +214,16 @@ class Paquete {
         return encaminamientos;
     }
 
-    void setSeqNumber() {
-        this.ns++;
+    void setSeqNumber(int ns) {
+        this.ns = ns;
+        int ns1 = 0x00FF & ns;
+        int ns2 = 0x00FF & (ns >> 8);
+        int ns3 = 0x00FF & (ns >> 16);
+        int ns4 = 0x00FF & (ns >> 24);
+        datos.put(12, (byte) ns4);                           //Seq number
+        datos.put(13, (byte) ns3);                           //Seq number
+        datos.put(14, (byte) ns2);                           //Seq number
+        datos.put(15, (byte) ns1);                           //Seq number
     }
 
     void autenticarPaquete() throws NoSuchAlgorithmException {
