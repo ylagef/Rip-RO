@@ -18,7 +18,6 @@ class Paquete {
     static private byte[] password;
     public ByteBuffer datos;
     int ns, key = 5;
-    String authData = "";
     int authLength = 16; //MD5
     int tableSize;
     private int indice = 0;
