@@ -134,8 +134,6 @@ class Paquete {
         byte[] a1 = new byte[]{datos.get(12), datos.get(13), datos.get(14), datos.get(15)};
         ByteBuffer wrapped = ByteBuffer.wrap(a1); // big-endian by default
         this.ns = wrapped.getInt();
-
-        this.key = datos.get(10);
     }
 
     void addEncaminamiento(Encaminamiento e) {
@@ -268,6 +266,7 @@ class Paquete {
 
         autenticar.put(encs);
         autenticar.put((byte) key);
+        datos.put(10, (byte) key);
         autenticar.put((byte) authLength);
         int ns1 = 0x00FF & ns;
         int ns2 = 0x00FF & (ns >> 8);
