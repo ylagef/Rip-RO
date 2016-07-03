@@ -63,9 +63,11 @@ class Servidor {
 
                 ArrayList<Encaminamiento> encaminamientos = paquete.getEncaminamientosDelPacket();
                 Paquete aux = new Paquete(Comando.RESPONSE, size);
+                int i = 0;
                 for (Encaminamiento encaminamiento : encaminamientos) {
                     if (encaminamiento.getSiguienteRout().getIp().getHostAddress().replaceAll("/", "").contains(destino.getIp().getHostAddress().replaceAll("/", ""))) {
-                        encaminamiento.setDistancia(16);
+                        i++;
+                        aux.datos.put((i * 20 + 23), (byte) 16);
                     }
                     aux.addEncaminamiento(encaminamiento);
                 }
