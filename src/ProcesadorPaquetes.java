@@ -59,9 +59,9 @@ class ProcesadorPaquetes implements Runnable {
 
         //Autenticar
         if (recibido.esAutentico()) {
-            System.out.println("Es autentico.");
+            System.out.println("AUTENTICACIÓN OK.");
         } else {
-            System.out.println("No es autentico.");
+            System.out.println("ERROR DE AUTENTICACIÓN.");
             return;
         }
 

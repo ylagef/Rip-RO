@@ -15,10 +15,10 @@ class Paquete {
     // Comando | Numero Version | No usado (0) | AFI | Route TAG | Destino | Mask | Por donde | Distancia
     //       1                1              2     2           2         4      4           4           4
     //                                  En Bytes (octetos)
-
+    static int numEnc;
     static private byte[] password;
     public ByteBuffer datos;
-    int ns, key = 0;
+    int ns, key = 5;
     String authData = "";
     int authLength = 16; //MD5
     int tableSize;
@@ -215,14 +215,24 @@ class Paquete {
     }
 
     void autenticarPaquete() throws NoSuchAlgorithmException {
-        int desde = 24 + (20 * (tableSize));
+        if (tableSize == 0) {
+
+        } else {
+            numEnc = tableSize;
+        }
+
+        int desde = 24 + (20 * (numEnc));
 
         //Password + Data + Key ID + ADlength + Seq Number
 
-        ByteBuffer encaminamientos;
-        encaminamientos = ByteBuffer.allocate(13 * tableSize);
+        ByteBuffer encaminamientos = null;
+        encaminamientos = ByteBuffer.allocate(13 * numEnc + 1);
 
-        for (int i = 1; i < ((datos.limit() - 44) / 20) + 1; i++) {
+        if (numEnc == 0) {
+            return;
+        }
+
+        for (int i = 1; i < numEnc + 1; i++) {
             encaminamientos.put(datos.get(i * 20 + 8));
             encaminamientos.put(datos.get(i * 20 + 9));
             encaminamientos.put(datos.get(i * 20 + 10));
@@ -239,11 +249,14 @@ class Paquete {
         }
 
         ByteBuffer autenticar;
-        autenticar = ByteBuffer.allocate(16 + 13 * tableSize + 1 + 1 + 4);
-
+        autenticar = ByteBuffer.allocate(16 + (13 * numEnc + 1) + 1 + 1 + 4);
 
         autenticar.put(password);
-        autenticar.put(encaminamientos.array());
+
+        byte[] encs = new byte[numEnc * 13];
+        System.arraycopy(encaminamientos.array(), 0, encs, 0, numEnc * 13);
+
+        autenticar.put(encs);
         autenticar.put((byte) key);
         autenticar.put((byte) authLength);
         int ns1 = 0x00FF & ns;
@@ -255,8 +268,11 @@ class Paquete {
         autenticar.put((byte) ns2);                           //Seq number
         autenticar.put((byte) ns1);
 
+        byte[] aut = new byte[autenticar.limit() - 1];
+        System.arraycopy(autenticar.array(), 0, aut, 0, autenticar.limit() - 1);
+
         MessageDigest mDigest = MessageDigest.getInstance("MD5");
-        byte[] result = mDigest.digest(autenticar.array());
+        byte[] result = mDigest.digest(aut);
 
         datos.put(desde + 4, result[0]);                           //Auth Data
         datos.put(desde + 5, result[1]);                           //Auth Data
@@ -278,7 +294,7 @@ class Paquete {
 
     boolean esAutentico() throws NoSuchAlgorithmException {
         String autenticacionRecibida;
-        int desde = 24 + (20 * (tableSize));
+        int desde = 24 + (20 * (numEnc));
         byte[] auth = new byte[]{
                 datos.get(desde + 4),
                 datos.get(desde + 5),
@@ -297,12 +313,13 @@ class Paquete {
                 datos.get(desde + 18),
                 datos.get(desde + 19)
         };
-        autenticacionRecibida = auth.toString();
+        autenticacionRecibida = "" + auth[0] + auth[1] + auth[2] + auth[3] + auth[4] + auth[5] + auth[6] + auth[7] +
+                auth[8] + auth[9] + auth[10] + auth[11] + auth[12] + auth[13] + auth[14] + auth[15];
 
         String autenticacionActual;
 
         autenticarPaquete();
-        int d = 24 + (20 * (tableSize));
+        int d = 24 + (20 * (numEnc));
         byte[] authent = new byte[]{
                 datos.get(d + 4),
                 datos.get(d + 5),
@@ -321,8 +338,18 @@ class Paquete {
                 datos.get(d + 18),
                 datos.get(d + 19)
         };
-        autenticacionActual = authent.toString();
+        autenticacionActual = "" + authent[0] + authent[1] + authent[2] + authent[3] + authent[4] + authent[5] + authent[6] + authent[7] + authent[8] +
+                authent[9] + authent[10] + authent[11] + authent[12] + authent[13] + authent[14] + authent[15];
 
         return autenticacionRecibida.contentEquals(autenticacionActual);
     }
+
+    /*Integer.toHexString(auth[0]).substring(6) + Integer.toHexString(auth[1]).substring(6) +
+                Integer.toHexString(auth[2]).substring(6) + Integer.toHexString(auth[3]).substring(6) +
+                Integer.toHexString(auth[4]).substring(6) + Integer.toHexString(auth[5]).substring(6) +
+                Integer.toHexString(auth[6]).substring(6) + Integer.toHexString(auth[7]).substring(6) +
+                Integer.toHexString(auth[8]).substring(6) + Integer.toHexString(auth[9]).substring(6) +
+                Integer.toHexString(auth[10]).substring(6) + Integer.toHexString(auth[11]).substring(6) +
+                Integer.toHexString(auth[12]).substring(6) + Integer.toHexString(auth[13]).substring(6) +
+                Integer.toHexString(auth[14]).substring(6) + Integer.toHexString(auth[15]).substring(6);*/
 }
