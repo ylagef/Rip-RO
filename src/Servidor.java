@@ -56,20 +56,22 @@ class Servidor {
         }
     }
 
-    static void envioUnicast(Paquete paquete, int size) {
+    static void envioUnicast(Paquete p, int size) {
         for (Router destino : listaVecinos) {
             try {
                 System.out.println("Enviando desde el puerto " + sendSocket.getLocalPort() + " hacia " + destino.getIp().getHostAddress() + ":" + destino.getPuerto() + "...");
 
-                ArrayList<Encaminamiento> encaminamientos = paquete.getEncaminamientosDelPacket();
-                Paquete aux = new Paquete(Comando.RESPONSE, size);
+                ArrayList<Encaminamiento> encaminamientos = p.getEncaminamientosDelPacket();
+                Paquete paquete = new Paquete(Comando.RESPONSE, size);
+
                 for (Encaminamiento encaminamiento : encaminamientos) {
                     if (encaminamiento.getSiguienteRout().getIp().getHostAddress().replaceAll("/", "").contains(destino.getIp().getHostAddress().replaceAll("/", ""))) {
                         encaminamiento.setDistancia(16);
                     }
-                    aux.addEncaminamiento(encaminamiento);
+                    paquete.addEncaminamiento(encaminamiento);
                 }
 
+                /*
                 Paquete p = new Paquete(Comando.RESPONSE, size);
 
                 for (Encaminamiento e : aux.getEncaminamientosDelPacket()) {
@@ -77,6 +79,7 @@ class Servidor {
                         e.setDistancia(16);
                     p.addEncaminamiento(e);
                 }
+                */
 
                 paquete.setSeqNumber(ns);
                 ns++;
