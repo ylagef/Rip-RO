@@ -16,9 +16,9 @@ class Paquete {
     //                                  En Bytes (octetos)
     private static int numEnc;
     static private byte[] password;
+    private final int key = 5; //La clave de cifrado. Key ID.
     public ByteBuffer datos;
     private int ns = 0;
-    private int key = 0;
     private int authLength = 16; //MD5
     private int tableSize;
     private int indice = 0;
@@ -47,7 +47,6 @@ class Paquete {
         datos.put((byte) pl2);                           //RIPv2 packet length
         datos.put((byte) pl1);                           //RIPv2 packet length
 
-        key = 5;
         datos.put((byte) key);                           //Key ID ¿El puerto?
         datos.put((byte) authLength);                    //Auth data length
 
