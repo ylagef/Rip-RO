@@ -178,6 +178,7 @@ class Paquete {
         int cortar = 0;
         ArrayList<Encaminamiento> encaminamientos = new ArrayList<>();
         int aux = 0;
+        numEnc = 0;
         for (int j = 1; j < ((datos.limit() - 49) / 20) + 1; j++) {
             try {
                 byte[] nombreIp = new byte[]{datos.get(j * 20 + 8), datos.get(j * 20 + 9), datos.get(j * 20 + 10), datos.get(j * 20 + 11)};
@@ -201,6 +202,7 @@ class Paquete {
                 Router siguiente = new Router(InetAddress.getByAddress(new byte[]{datos.get(j * 20 + 16), datos.get(j * 20 + 17), datos.get(j * 20 + 18), datos.get(j * 20 + 19)}));
 
                 int distancia = datos.get(j * 20 + 23);
+                numEnc++;
                 encaminamientos.add(new Encaminamiento(ip, mascara, siguiente, distancia));
             } catch (UnknownHostException e) {
                 System.out.println("EXCEPCION EN:   PAQUETE > getEncaminamientosDelPacket");
@@ -222,8 +224,6 @@ class Paquete {
         } else {
             numEnc = tableSize;
         }
-
-        int desde = 24 + (20 * (numEnc));
 
         //Password + Data + Key ID + ADlength + Seq Number
 
@@ -275,6 +275,8 @@ class Paquete {
 
         MessageDigest mDigest = MessageDigest.getInstance("MD5");
         byte[] result = mDigest.digest(aut);
+
+        int desde = datos.limit() - 20;
 
         datos.put(desde + 4, result[0]);                           //Auth Data
         datos.put(desde + 5, result[1]);                           //Auth Data
