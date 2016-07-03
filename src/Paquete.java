@@ -4,7 +4,6 @@ import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Created by Yeray on 07/05/2016.
@@ -81,6 +80,7 @@ class Paquete {
     Paquete(byte[] datagramPacket) {
         datos = ByteBuffer.allocate(datagramPacket.length);
         datos = ByteBuffer.wrap(datagramPacket);
+        getEncaminamientosDelPacket();
     }
 
     static void genPassword(String pass) {
@@ -175,43 +175,45 @@ class Paquete {
     }
 
     ArrayList<Encaminamiento> getEncaminamientosDelPacket() {
-
+        int cortar = 0;
         ArrayList<Encaminamiento> encaminamientos = new ArrayList<>();
-
-        for (int j = 1; j < ((datos.limit() - 44) / 20) + 1; j++) {
+        int aux = 0;
+        for (int j = 1; j < ((datos.limit() - 49) / 20) + 1; j++) {
             try {
                 byte[] nombreIp = new byte[]{datos.get(j * 20 + 8), datos.get(j * 20 + 9), datos.get(j * 20 + 10), datos.get(j * 20 + 11)};
                 InetAddress ip = InetAddress.getByAddress(nombreIp);
 
                 if (ip.getHostAddress().contains("0.0.0.0")) {
+                    cortar++;
                     continue;
                 }
 
-                InetAddress msk = InetAddress.getByAddress(new byte[]{datos.get(j * 20 + 12), datos.get(j * 20 + 13), datos.get(j * 20 + 14), datos.get(j * 20 + 15)});
+                int mascara = 0;
+                aux++;
+                try {
+                    InetAddress msk = InetAddress.getByAddress(new byte[]{datos.get(j * 20 + 12), datos.get(j * 20 + 13), datos.get(j * 20 + 14), datos.get(j * 20 + 15)});
+                    mascara = convertNetmaskToCIDR(msk);
+                } catch (IllegalArgumentException e) {
+                    continue;
+                }
 
-                int mascara = convertNetmaskToCIDR(msk);
 
                 Router siguiente = new Router(InetAddress.getByAddress(new byte[]{datos.get(j * 20 + 16), datos.get(j * 20 + 17), datos.get(j * 20 + 18), datos.get(j * 20 + 19)}));
 
                 int distancia = datos.get(j * 20 + 23);
-
                 encaminamientos.add(new Encaminamiento(ip, mascara, siguiente, distancia));
-
             } catch (UnknownHostException e) {
                 System.out.println("EXCEPCION EN:   PAQUETE > getEncaminamientosDelPacket");
             }
+        }
+        if (cortar != 0 && numEnc != 0) {
+            byte[] dn = new byte[aux * 13 + 59];
+            System.arraycopy(datos.array(), 0, dn, 0, (aux * 13) + 59);
+            this.datos = ByteBuffer.allocate(dn.length);
+            datos.put(dn);
 
         }
-
         return encaminamientos;
-    }
-
-    boolean isPassValid() {
-        byte[] passToValidate = new byte[16];
-        for (int i = 8; i < 24; i++) {
-            passToValidate[i - 8] = datos.get(i);
-        }
-        return Arrays.equals(passToValidate, password);
     }
 
     void autenticarPaquete() throws NoSuchAlgorithmException {
@@ -294,7 +296,15 @@ class Paquete {
 
     boolean esAutentico() throws NoSuchAlgorithmException {
         String autenticacionRecibida;
-        int desde = 24 + (20 * (numEnc));
+        int desde = datos.limit() - 16 - 4;
+
+        for (int x = 0; x < 500; x++) {
+            if (datos.get(datos.limit() - x - 1) != 0) {
+                desde = datos.limit() - x - 16 - 4;
+                break;
+            }
+        }
+
         byte[] auth = new byte[]{
                 datos.get(desde + 4),
                 datos.get(desde + 5),
@@ -319,7 +329,14 @@ class Paquete {
         String autenticacionActual;
 
         autenticarPaquete();
-        int d = 24 + (20 * (numEnc));
+        int d = datos.limit() - 16 - 4;
+
+        for (int y = 0; y < 500; y++) {
+            if (datos.get(datos.limit() - y - 1) != 0) {
+                d = datos.limit() - y - 16 - 4;
+                break;
+            }
+        }
         byte[] authent = new byte[]{
                 datos.get(d + 4),
                 datos.get(d + 5),
@@ -344,12 +361,4 @@ class Paquete {
         return autenticacionRecibida.contentEquals(autenticacionActual);
     }
 
-    /*Integer.toHexString(auth[0]).substring(6) + Integer.toHexString(auth[1]).substring(6) +
-                Integer.toHexString(auth[2]).substring(6) + Integer.toHexString(auth[3]).substring(6) +
-                Integer.toHexString(auth[4]).substring(6) + Integer.toHexString(auth[5]).substring(6) +
-                Integer.toHexString(auth[6]).substring(6) + Integer.toHexString(auth[7]).substring(6) +
-                Integer.toHexString(auth[8]).substring(6) + Integer.toHexString(auth[9]).substring(6) +
-                Integer.toHexString(auth[10]).substring(6) + Integer.toHexString(auth[11]).substring(6) +
-                Integer.toHexString(auth[12]).substring(6) + Integer.toHexString(auth[13]).substring(6) +
-                Integer.toHexString(auth[14]).substring(6) + Integer.toHexString(auth[15]).substring(6);*/
 }
