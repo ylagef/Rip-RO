@@ -17,7 +17,7 @@ class Paquete {
     private static int numEnc;
     static private byte[] password;
     public ByteBuffer datos;
-    private int ns, key = 5;
+    private int ns, key = 0;
     private int authLength = 16; //MD5
     private int tableSize;
     private int indice = 0;
@@ -210,6 +210,10 @@ class Paquete {
             }
         }
         return encaminamientos;
+    }
+
+    void setSeqNumber() {
+        this.ns++;
     }
 
     void autenticarPaquete() throws NoSuchAlgorithmException {

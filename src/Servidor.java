@@ -79,7 +79,9 @@ class Servidor {
 
                 DatagramPacket dp = new DatagramPacket(paquete.datos.array(), paquete.datos.limit(), destino.getIp(), destino.getPuerto());
 
+                paquete.setSeqNumber();
                 paquete.autenticarPaquete();
+
                 sendSocket.send(dp);
             } catch (IOException e) {
                 System.out.println("ERROR EN EL ENVÍO");
