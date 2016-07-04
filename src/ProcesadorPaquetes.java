@@ -57,12 +57,9 @@ class ProcesadorPaquetes implements Runnable {
 
         //Autenticar
         if (recibido.esAutentico()) {
-
             receptor.aut += "AUTENTICACIÓN CON " + receivedPacket.getAddress().getHostAddress() + " OK.\n";
-            //System.out.println("AUTENTICACIÓN CON " + receivedPacket.getAddress().getHostAddress() + " OK.");
         } else {
-            receptor.aut += "AUTENTICACIÓN CON " + receivedPacket.getAddress().getHostAddress() + " OK.\n";
-            //System.out.println("ERROR DE AUTENTICACIÓN CON " + receivedPacket.getAddress().getHostAddress() + ".");
+            receptor.aut += "ERROR DE AUTENTICACIÓN CON " + receivedPacket.getAddress().getHostAddress() + ".\n";
             return;
         }
 
