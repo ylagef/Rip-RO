@@ -1,5 +1,6 @@
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -254,20 +255,23 @@ class Paquete {
             return;
         }
 
-        for (int i = 1; i < numEnc + 1; i++) {
-            encaminamientos.put(datos.get(i * 20 + 8));
-            encaminamientos.put(datos.get(i * 20 + 9));
-            encaminamientos.put(datos.get(i * 20 + 10));
-            encaminamientos.put(datos.get(i * 20 + 11));
-            encaminamientos.put(datos.get(i * 20 + 12));
-            encaminamientos.put(datos.get(i * 20 + 13));
-            encaminamientos.put(datos.get(i * 20 + 14));
-            encaminamientos.put(datos.get(i * 20 + 15));
-            encaminamientos.put(datos.get(i * 20 + 16));
-            encaminamientos.put(datos.get(i * 20 + 17));
-            encaminamientos.put(datos.get(i * 20 + 18));
-            encaminamientos.put(datos.get(i * 20 + 19));
-            encaminamientos.put(datos.get(i * 20 + 23));
+        try {
+            for (int i = 1; i < numEnc + 1; i++) {
+                encaminamientos.put(datos.get(i * 20 + 8));
+                encaminamientos.put(datos.get(i * 20 + 9));
+                encaminamientos.put(datos.get(i * 20 + 10));
+                encaminamientos.put(datos.get(i * 20 + 11));
+                encaminamientos.put(datos.get(i * 20 + 12));
+                encaminamientos.put(datos.get(i * 20 + 13));
+                encaminamientos.put(datos.get(i * 20 + 14));
+                encaminamientos.put(datos.get(i * 20 + 15));
+                encaminamientos.put(datos.get(i * 20 + 16));
+                encaminamientos.put(datos.get(i * 20 + 17));
+                encaminamientos.put(datos.get(i * 20 + 18));
+                encaminamientos.put(datos.get(i * 20 + 19));
+                encaminamientos.put(datos.get(i * 20 + 23));
+            }
+        } catch (BufferOverflowException ignored) {
         }
 
         ByteBuffer autenticar;
@@ -329,6 +333,7 @@ class Paquete {
     }
 
     boolean esAutentico() throws NoSuchAlgorithmException {
+
         String autenticacionRecibida;
         int desde = datos.limit() - 19;
 

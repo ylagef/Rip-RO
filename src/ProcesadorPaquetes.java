@@ -83,50 +83,6 @@ class ProcesadorPaquetes implements Runnable {
                 continue;
             }
 
-            /*
-            boolean pasa = false;
-            boolean borrarAlgo = false;
-            String borrar = "";
-
-            for (Object o : tabla.entrySet()) {
-                try {
-                    Map.Entry e = (Map.Entry) o;
-
-                    if (!encaminamientoNuevo.getDireccionInet().getHostAddress().contains(((Encaminamiento) e.getValue()).getDireccionInet().getHostAddress())) {
-                        if (mismaSubred(encaminamientoNuevo, (Encaminamiento) e.getValue())) {
-
-                            if (((encaminamientoNuevo.getDistanciaInt() + 1) <= ((Encaminamiento) e.getValue()).getDistanciaInt()) && (encaminamientoNuevo.getDistanciaInt() < 16)) {
-                                //Borrar el viejo y meter el nuevo
-                                //borrar = ((Encaminamiento) e.getValue()).getDireccionInet().getHostAddress();
-                                //borrarAlgo = true;
-                            } else if (encaminamientoNuevo.getMascaraInt() >= ((Encaminamiento) e.getValue()).getMascaraInt()) {
-                                pasa = true;
-                                break;
-                            }
-
-                            //La que nos mandan es mejor, así que la añadimos pero dejamos la que tenemos ya que a la nuestra llegamos antes nosotros.
-                            pasa = false;
-                            break;
-                        } else if (mismaSubred((Encaminamiento) e.getValue(), encaminamientoNuevo)) {
-                            //No se añade
-                            if (((encaminamientoNuevo.getDistanciaInt() + 1) < ((Encaminamiento) e.getValue()).getDistanciaInt()) && (encaminamientoNuevo.getDistanciaInt() < 16)) {
-                                pasa = false;
-                                break;
-                            }
-                            pasa = true;
-                            break;
-                        }
-                    }
-                } catch (ConcurrentModificationException ignored) {
-
-                }
-            }
-
-            if (pasa) continue;
-            if (borrarAlgo) tabla.remove(borrar);
-            */
-
-
             if (tabla.containsKey(encaminamientoNuevo.getDireccionInet().getHostAddress())) { //Ya tengo esta subred
 
                 Encaminamiento encaminamientoActual =
