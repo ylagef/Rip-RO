@@ -270,6 +270,7 @@ class Paquete {
         int ns2 = 0x00FF & (ns >> 8);
         int ns3 = 0x00FF & (ns >> 16);
         int ns4 = 0x00FF & (ns >> 24);
+
         autenticar.put((byte) ns4);                           //Seq number
         autenticar.put((byte) ns3);                           //Seq number
         autenticar.put((byte) ns2);                           //Seq number
