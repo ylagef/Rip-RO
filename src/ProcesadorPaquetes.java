@@ -89,18 +89,18 @@ class ProcesadorPaquetes implements Runnable {
 
                 int distanciaNueva = encaminamientoNuevo.getDistanciaInt();
                 int distanciaActual = encaminamientoActual.getDistanciaInt();
-                if (encaminamientoActual.getSiguienteRout() != null) {
-                    if (!encaminamientoActual.getSiguienteRout().getIp().getHostAddress().replaceAll("/", "").equalsIgnoreCase(routerEmisor.getIp().getHostAddress().replaceAll("/", ""))) {
-                        if (encaminamientoActual.getDireccionInet().getHostAddress().equalsIgnoreCase(encaminamientoNuevo.getDireccionInet().getHostAddress())) { //Misma IP
-                            if (encaminamientoActual.getMascaraInt() == encaminamientoNuevo.getMascaraInt()) { //Misma mascara
-                                if (distanciaNueva >= 16) { //Cambia la distancia a infinito
-                                    System.out.printf("Triggered update.\n");
-                                    continue;
-                                }
-                            }
+
+                if (distanciaActual < 16 && encaminamientoActual.getSiguienteRout() != null) {
+                    if (encaminamientoActual.getMascaraInt() == encaminamientoNuevo.getMascaraInt()) { //Misma mascara
+                        if (distanciaNueva >= 16) { //Cambia la distancia a infinito
+                            System.out.printf("Triggered update.\n");
+                            encaminamientoActual.setDistancia(16);
+                            continue;
                         }
                     }
                 }
+
+
                 if (encaminamientoActual.getDireccionInet().getHostAddress().contains(receptor.getIpLocal().getHostAddress())) {
                     continue;
                 }
