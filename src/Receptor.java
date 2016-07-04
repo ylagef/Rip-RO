@@ -11,6 +11,7 @@ import java.util.concurrent.ArrayBlockingQueue;
  */
 class Receptor implements Runnable {
 
+    String aut = "";
     private TablaEncaminamiento tablaEncaminamiento;
     private InetAddress ipLocal;
     private ArrayBlockingQueue<DatagramPacket> recibidos = new ArrayBlockingQueue<>(100);
@@ -51,14 +52,14 @@ class Receptor implements Runnable {
             Servidor.receptionSocket.receive(recibido);
 
             recibidos.add(recibido);
-
             ProcesadorPaquetes procesadorPaquetes = new ProcesadorPaquetes(this, recibidos, tablaEncaminamiento, recibido.getAddress(), recibido.getPort());
             (new Thread(procesadorPaquetes)).start();
-
         } catch (SocketTimeoutException e) {
+            System.out.printf(aut);
             System.out.println("    Tiempo de recepción finalizado. " + tOut + "ms.\n");
             continuar = false;
         } catch (IllegalArgumentException e) {
+            System.out.printf(aut);
             System.out.println("    Tiempo de recepción finalizado. " + tOut + "ms.\n");
             continuar = false;
         } catch (IOException e) {
