@@ -126,26 +126,31 @@ class ProcesadorPaquetes implements Runnable {
             if (borrarAlgo) tabla.remove(borrar);
             */
 
+
             if (tabla.containsKey(encaminamientoNuevo.getDireccionInet().getHostAddress())) { //Ya tengo esta subred
 
                 Encaminamiento encaminamientoActual =
                         tabla.get(encaminamientoNuevo.getDireccionInet().getHostAddress()); //El de la tabla actual
-
-                if (mismaSubred(encaminamientoNuevo, encaminamientoActual) || mismaSubred(encaminamientoActual, encaminamientoNuevo)) {
-                    Encaminamiento nuevo = new Encaminamiento(encaminamientoNuevo.getDireccionInet(),
-                            encaminamientoNuevo.getMascaraInt(), routerEmisor,
-                            (encaminamientoNuevo.getDistanciaInt() + 1));
-
-                    nuevo.resetTimer();
-                    tabla.put(nuevo.getDireccionInet().getHostAddress(), nuevo);
-                    continue;
-                }
 
                 if (encaminamientoActual.getDireccionInet().getHostAddress().contains(receptor.getIpLocal().getHostAddress())) {
                     continue;
                 }
 
                 if (encaminamientoActual.getDistanciaInt() == 1 && encaminamientoActual.getSiguiente() == null) {
+                    encaminamientoActual.resetTimer();
+                    continue;
+                }
+
+                if ((mismaSubred(encaminamientoNuevo, encaminamientoActual) || mismaSubred(encaminamientoActual, encaminamientoNuevo))
+                        && (encaminamientoActual.getDireccionInet().getHostAddress().replaceAll("/", "").
+                        contains(encaminamientoNuevo.getDireccionInet().getHostAddress().replaceAll("/", "")))) {
+
+                    Encaminamiento nuevo = new Encaminamiento(encaminamientoNuevo.getDireccionInet(),
+                            encaminamientoNuevo.getMascaraInt(), routerEmisor,
+                            (encaminamientoNuevo.getDistanciaInt() + 1));
+
+                    nuevo.resetTimer();
+                    tabla.put(encaminamientoNuevo.getDireccionInet().getHostAddress(), nuevo);
                     encaminamientoActual.resetTimer();
                     continue;
                 }
