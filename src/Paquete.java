@@ -265,7 +265,6 @@ class Paquete {
 
         autenticar.put(encs);
         autenticar.put((byte) key);
-        datos.put(10, (byte) key);
         autenticar.put((byte) authLength);
         int ns1 = 0x00FF & ns;
         int ns2 = 0x00FF & (ns >> 8);
@@ -282,7 +281,14 @@ class Paquete {
         MessageDigest mDigest = MessageDigest.getInstance("MD5");
         byte[] result = mDigest.digest(aut);
 
-        int desde = datos.limit() - 20;
+        int desde = datos.limit() - 19;
+
+        for (int x = 0; x < 500; x++) {
+            if (datos.get(datos.limit() - x - 1) != 0) {
+                desde = datos.limit() - x - 20;
+                break;
+            }
+        }
 
         datos.put(desde + 4, result[0]);                           //Auth Data
         datos.put(desde + 5, result[1]);                           //Auth Data
@@ -308,7 +314,7 @@ class Paquete {
 
         for (int x = 0; x < 500; x++) {
             if (datos.get(datos.limit() - x - 1) != 0) {
-                desde = datos.limit() - x - 16 - 4;
+                desde = datos.limit() - x - 20;
                 break;
             }
         }
@@ -337,11 +343,11 @@ class Paquete {
         String autenticacionActual;
 
         autenticarPaquete();
-        int d = datos.limit() - 16 - 4;
+        int d = datos.limit() - 19;
 
         for (int y = 0; y < 500; y++) {
             if (datos.get(datos.limit() - y - 1) != 0) {
-                d = datos.limit() - y - 16 - 4;
+                d = datos.limit() - y - 20;
                 break;
             }
         }
