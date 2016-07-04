@@ -140,7 +140,7 @@ class ProcesadorPaquetes implements Runnable {
                     encaminamientoActual.resetTimer();
                     continue;
                 }
-
+/*
                 if ((mismaSubred(encaminamientoNuevo, encaminamientoActual) || mismaSubred(encaminamientoActual, encaminamientoNuevo))
                         && (encaminamientoActual.getDireccionInet().getHostAddress().replaceAll("/", "").
                         contains(encaminamientoNuevo.getDireccionInet().getHostAddress().replaceAll("/", ""))) &&
@@ -155,7 +155,7 @@ class ProcesadorPaquetes implements Runnable {
                     encaminamientoActual.resetTimer();
                     continue;
                 }
-
+*/
                 int distanciaNueva = encaminamientoNuevo.getDistanciaInt();
                 int distanciaActual = encaminamientoActual.getDistanciaInt();
 
