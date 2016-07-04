@@ -143,7 +143,8 @@ class ProcesadorPaquetes implements Runnable {
 
                 if ((mismaSubred(encaminamientoNuevo, encaminamientoActual) || mismaSubred(encaminamientoActual, encaminamientoNuevo))
                         && (encaminamientoActual.getDireccionInet().getHostAddress().replaceAll("/", "").
-                        contains(encaminamientoNuevo.getDireccionInet().getHostAddress().replaceAll("/", "")))) {
+                        contains(encaminamientoNuevo.getDireccionInet().getHostAddress().replaceAll("/", ""))) &&
+                        (encaminamientoActual.getMascaraInt() != encaminamientoNuevo.getMascaraInt())) {
 
                     Encaminamiento nuevo = new Encaminamiento(encaminamientoNuevo.getDireccionInet(),
                             encaminamientoNuevo.getMascaraInt(), routerEmisor,
