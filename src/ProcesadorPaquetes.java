@@ -140,9 +140,8 @@ class ProcesadorPaquetes implements Runnable {
                     encaminamientoActual.resetTimer();
                     continue;
                 }
-/*
-                if ((mismaSubred(encaminamientoNuevo, encaminamientoActual) || mismaSubred(encaminamientoActual, encaminamientoNuevo))
-                        && (encaminamientoActual.getDireccionInet().getHostAddress().replaceAll("/", "").
+
+                if ((encaminamientoActual.getDireccionInet().getHostAddress().replaceAll("/", "").
                         contains(encaminamientoNuevo.getDireccionInet().getHostAddress().replaceAll("/", ""))) &&
                         (encaminamientoActual.getMascaraInt() != encaminamientoNuevo.getMascaraInt())) {
 
@@ -151,11 +150,11 @@ class ProcesadorPaquetes implements Runnable {
                             (encaminamientoNuevo.getDistanciaInt() + 1));
 
                     nuevo.resetTimer();
-                    tabla.put(encaminamientoNuevo.getDireccionInet().getHostAddress(), nuevo);
+                    tabla.put(encaminamientoNuevo.getDireccionInet().getHostAddress() + encaminamientoNuevo.getMascaraInt(), nuevo);
                     encaminamientoActual.resetTimer();
                     continue;
                 }
-*/
+
                 int distanciaNueva = encaminamientoNuevo.getDistanciaInt();
                 int distanciaActual = encaminamientoActual.getDistanciaInt();
 
