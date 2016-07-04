@@ -281,12 +281,16 @@ class Paquete {
         MessageDigest mDigest = MessageDigest.getInstance("MD5");
         byte[] result = mDigest.digest(aut);
 
-        int desde = datos.limit() - 19;
+        int desde = datos.limit() - 20;
 
-        for (int x = 0; x < 500; x++) {
-            if (datos.get(datos.limit() - x - 1) != 0) {
-                desde = datos.limit() - x - 20;
-                break;
+        if (datos.limit() == 504) {
+            desde = datos.limit() - 19;
+
+            for (int x = 0; x < 500; x++) {
+                if (datos.get(datos.limit() - x - 1) != 0) {
+                    desde = datos.limit() - x - 20;
+                    break;
+                }
             }
         }
 
