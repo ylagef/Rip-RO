@@ -77,17 +77,30 @@ class ProcesadorPaquetes implements Runnable {
 
         for (Encaminamiento encaminamientoNuevo : encaminamientos) {
 
-            if (encaminamientoNuevo.getDistanciaInt() >= 16) continue;
+            //if (encaminamientoNuevo.getDistanciaInt() >= 16) continue;
 
             if (encaminamientoNuevo.getDireccionInet().getHostAddress().contains(receptor.getIpLocal().getHostAddress())) {
                 continue;
             }
 
             if (tabla.containsKey(encaminamientoNuevo.getDireccionInet().getHostAddress())) { //Ya tengo esta subred
-
                 Encaminamiento encaminamientoActual =
                         tabla.get(encaminamientoNuevo.getDireccionInet().getHostAddress()); //El de la tabla actual
 
+                int distanciaNueva = encaminamientoNuevo.getDistanciaInt();
+                int distanciaActual = encaminamientoActual.getDistanciaInt();
+                if (encaminamientoActual.getSiguienteRout() != null) {
+                    if (!encaminamientoActual.getSiguienteRout().getIp().getHostAddress().replaceAll("/", "").equalsIgnoreCase(routerEmisor.getIp().getHostAddress().replaceAll("/", ""))) {
+                        if (encaminamientoActual.getDireccionInet().getHostAddress().equalsIgnoreCase(encaminamientoNuevo.getDireccionInet().getHostAddress())) { //Misma IP
+                            if (encaminamientoActual.getMascaraInt() == encaminamientoNuevo.getMascaraInt()) { //Misma mascara
+                                if (distanciaNueva >= 16) { //Cambia la distancia a infinito
+                                    System.out.printf("Triggered update.\n");
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+                }
                 if (encaminamientoActual.getDireccionInet().getHostAddress().contains(receptor.getIpLocal().getHostAddress())) {
                     continue;
                 }
@@ -111,9 +124,6 @@ class ProcesadorPaquetes implements Runnable {
                     encaminamientoActual.resetTimer();
                     continue;
                 }
-
-                int distanciaNueva = encaminamientoNuevo.getDistanciaInt();
-                int distanciaActual = encaminamientoActual.getDistanciaInt();
 
                 if ((distanciaNueva + 1) < distanciaActual) {
                     //Se cambia el encaminamiento
