@@ -131,6 +131,16 @@ class ProcesadorPaquetes implements Runnable {
                 Encaminamiento encaminamientoActual =
                         tabla.get(encaminamientoNuevo.getDireccionInet().getHostAddress()); //El de la tabla actual
 
+                if (mismaSubred(encaminamientoNuevo, encaminamientoActual) || mismaSubred(encaminamientoActual, encaminamientoNuevo)) {
+                    Encaminamiento nuevo = new Encaminamiento(encaminamientoNuevo.getDireccionInet(),
+                            encaminamientoNuevo.getMascaraInt(), routerEmisor,
+                            (encaminamientoNuevo.getDistanciaInt() + 1));
+
+                    nuevo.resetTimer();
+                    tabla.put(nuevo.getDireccionInet().getHostAddress(), nuevo);
+                    continue;
+                }
+
                 if (encaminamientoActual.getDireccionInet().getHostAddress().contains(receptor.getIpLocal().getHostAddress())) {
                     continue;
                 }
