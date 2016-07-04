@@ -150,7 +150,8 @@ class ProcesadorPaquetes implements Runnable {
                             (encaminamientoNuevo.getDistanciaInt() + 1));
 
                     nuevo.resetTimer();
-                    tabla.put(encaminamientoNuevo.getDireccionInet().getHostAddress() + encaminamientoNuevo.getMascaraInt(), nuevo);
+                    String nme = encaminamientoNuevo.getDireccionInet().getHostAddress() + "/" + encaminamientoNuevo.getMascaraInt();
+                    tabla.put(nme, nuevo);
                     encaminamientoActual.resetTimer();
                     continue;
                 }
