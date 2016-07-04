@@ -128,13 +128,27 @@ class Encaminamiento {
 
     @Override
     public String toString() {
+        if (direccionInet.getHostAddress().length() >= 9 && direccionInet.getHostAddress().length() < 13) {
+            if (siguiente != null) {
+                return "[\t" + direccionInet.getHostAddress() + "/" + mascaraInt + "\t\t|\t\t" + distanciaInt + "\t\t|\t\t" + siguienteRout.getIp().getHostAddress()
+                        + "\t]";
+            }
 
-        if (siguiente != null) {
-            return "[\t" + direccionInet.getHostAddress() + "/" + mascaraInt + "\t\t|\t\t" + distanciaInt + "\t\t|\t\t" + siguienteRout.getIp().getHostAddress()
-                    + "\t]";
+            return "[\t" + direccionInet.getHostAddress() + "/" + mascaraInt + "\t\t|\t\t" + distanciaInt + "\t\t]";
+        } else if (direccionInet.getHostAddress().length() < 9) {
+            if (siguiente != null) {
+                return "[\t" + direccionInet.getHostAddress() + "/" + mascaraInt + "\t\t\t|\t\t" + distanciaInt + "\t\t|\t\t" + siguienteRout.getIp().getHostAddress()
+                        + "\t]";
+            }
+
+            return "[\t" + direccionInet.getHostAddress() + "/" + mascaraInt + "\t\t\t|\t\t" + distanciaInt + "\t\t]";
+        } else {
+            if (siguiente != null) {
+                return "[\t" + direccionInet.getHostAddress() + "/" + mascaraInt + "\t|\t\t" + distanciaInt + "\t\t|\t\t" + siguienteRout.getIp().getHostAddress()
+                        + "\t]";
+            }
+
+            return "[\t" + direccionInet.getHostAddress() + "/" + mascaraInt + "\t|\t\t" + distanciaInt + "\t\t]";
         }
-
-        return "[\t" + direccionInet.getHostAddress() + "/" + mascaraInt + "\t\t|\t\t" + distanciaInt + "\t\t]";
-
     }
 }

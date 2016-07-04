@@ -225,37 +225,38 @@ class Paquete {
     }
 
     void autenticarPaquete() throws NoSuchAlgorithmException {
-        if (tableSize == 0) {
-
-        } else {
-            numEnc = tableSize;
-        }
-
-
-        int fin = datos.limit();
-        for (int f = 0; f < 500; f++) {
-            if (datos.get(datos.limit() - 1 - f) != 0) {
-                fin = datos.limit() - 1 - f;
-                break;
-            }
-        }
-
-        if (datos.limit() == 504) {
-            numEnc = (fin - 43) / 20;
-        } else {
-            numEnc = (datos.limit() - 44) / 20;
-        }
-
-        //Password + Data + Key ID + ADlength + Seq Number
-
-        ByteBuffer encaminamientos = null;
-        encaminamientos = ByteBuffer.allocate(13 * numEnc + 1);
-
-        if (numEnc == 0) {
-            return;
-        }
-
         try {
+            if (tableSize == 0) {
+
+            } else {
+                numEnc = tableSize;
+            }
+
+
+            int fin = datos.limit();
+            for (int f = 0; f < 500; f++) {
+                if (datos.get(datos.limit() - 1 - f) != 0) {
+                    fin = datos.limit() - 1 - f;
+                    break;
+                }
+            }
+
+            if (datos.limit() == 504) {
+                numEnc = (fin - 43) / 20;
+            } else {
+                numEnc = (datos.limit() - 44) / 20;
+            }
+
+            //Password + Data + Key ID + ADlength + Seq Number
+
+            ByteBuffer encaminamientos = null;
+            encaminamientos = ByteBuffer.allocate(13 * numEnc + 1);
+
+            if (numEnc == 0) {
+                return;
+            }
+
+
             for (int i = 1; i < numEnc + 1; i++) {
                 encaminamientos.put(datos.get(i * 20 + 8));
                 encaminamientos.put(datos.get(i * 20 + 9));
@@ -271,65 +272,66 @@ class Paquete {
                 encaminamientos.put(datos.get(i * 20 + 19));
                 encaminamientos.put(datos.get(i * 20 + 23));
             }
-        } catch (BufferOverflowException ignored) {
-        }
 
-        ByteBuffer autenticar;
-        autenticar = ByteBuffer.allocate(16 + (13 * numEnc + 1) + 1 + 1 + 4);
 
-        autenticar.put(password);
+            ByteBuffer autenticar;
+            autenticar = ByteBuffer.allocate(16 + (13 * numEnc + 1) + 1 + 1 + 4);
 
-        byte[] encs = new byte[numEnc * 13];
-        System.arraycopy(encaminamientos.array(), 0, encs, 0, numEnc * 13);
+            autenticar.put(password);
 
-        autenticar.put(encs);
-        autenticar.put((byte) key);
-        autenticar.put((byte) authLength);
-        int ns1 = 0x00FF & ns;
-        int ns2 = 0x00FF & (ns >> 8);
-        int ns3 = 0x00FF & (ns >> 16);
-        int ns4 = 0x00FF & (ns >> 24);
+            byte[] encs = new byte[numEnc * 13];
+            System.arraycopy(encaminamientos.array(), 0, encs, 0, numEnc * 13);
 
-        autenticar.put((byte) ns4);                           //Seq number
-        autenticar.put((byte) ns3);                           //Seq number
-        autenticar.put((byte) ns2);                           //Seq number
-        autenticar.put((byte) ns1);
+            autenticar.put(encs);
+            autenticar.put((byte) key);
+            autenticar.put((byte) authLength);
+            int ns1 = 0x00FF & ns;
+            int ns2 = 0x00FF & (ns >> 8);
+            int ns3 = 0x00FF & (ns >> 16);
+            int ns4 = 0x00FF & (ns >> 24);
 
-        byte[] aut = new byte[autenticar.limit() - 1];
-        System.arraycopy(autenticar.array(), 0, aut, 0, autenticar.limit() - 1);
+            autenticar.put((byte) ns4);                           //Seq number
+            autenticar.put((byte) ns3);                           //Seq number
+            autenticar.put((byte) ns2);                           //Seq number
+            autenticar.put((byte) ns1);
 
-        MessageDigest mDigest = MessageDigest.getInstance("MD5");
-        byte[] result = mDigest.digest(aut);
+            byte[] aut = new byte[autenticar.limit() - 1];
+            System.arraycopy(autenticar.array(), 0, aut, 0, autenticar.limit() - 1);
 
-        int desde = datos.limit() - 20;
+            MessageDigest mDigest = MessageDigest.getInstance("MD5");
+            byte[] result = mDigest.digest(aut);
 
-        if (datos.limit() == 504) {
-            desde = datos.limit() - 19;
+            int desde = datos.limit() - 20;
 
-            for (int x = 0; x < 500; x++) {
-                if (datos.get(datos.limit() - x - 1) != 0) {
-                    desde = datos.limit() - x - 20;
-                    break;
+            if (datos.limit() == 504) {
+                desde = datos.limit() - 19;
+
+                for (int x = 0; x < 500; x++) {
+                    if (datos.get(datos.limit() - x - 1) != 0) {
+                        desde = datos.limit() - x - 20;
+                        break;
+                    }
                 }
             }
-        }
 
-        datos.put(desde + 4, result[0]);                           //Auth Data
-        datos.put(desde + 5, result[1]);                           //Auth Data
-        datos.put(desde + 6, result[2]);                           //Auth Data
-        datos.put(desde + 7, result[3]);                           //Auth Data
-        datos.put(desde + 8, result[4]);                           //Auth Data
-        datos.put(desde + 9, result[5]);                           //Auth Data
-        datos.put(desde + 10, result[6]);                           //Auth Data
-        datos.put(desde + 11, result[7]);                           //Auth Data
-        datos.put(desde + 12, result[8]);                           //Auth Data
-        datos.put(desde + 13, result[9]);                           //Auth Data
-        datos.put(desde + 14, result[10]);                           //Auth Data
-        datos.put(desde + 15, result[11]);                           //Auth Data
-        datos.put(desde + 16, result[12]);                           //Auth Data
-        datos.put(desde + 17, result[13]);                           //Auth Data
-        datos.put(desde + 18, result[14]);                           //Auth Data
-        datos.put(desde + 19, result[15]);                           //Auth Data
+            datos.put(desde + 4, result[0]);                           //Auth Data
+            datos.put(desde + 5, result[1]);                           //Auth Data
+            datos.put(desde + 6, result[2]);                           //Auth Data
+            datos.put(desde + 7, result[3]);                           //Auth Data
+            datos.put(desde + 8, result[4]);                           //Auth Data
+            datos.put(desde + 9, result[5]);                           //Auth Data
+            datos.put(desde + 10, result[6]);                           //Auth Data
+            datos.put(desde + 11, result[7]);                           //Auth Data
+            datos.put(desde + 12, result[8]);                           //Auth Data
+            datos.put(desde + 13, result[9]);                           //Auth Data
+            datos.put(desde + 14, result[10]);                           //Auth Data
+            datos.put(desde + 15, result[11]);                           //Auth Data
+            datos.put(desde + 16, result[12]);                           //Auth Data
+            datos.put(desde + 17, result[13]);                           //Auth Data
+            datos.put(desde + 18, result[14]);                           //Auth Data
+            datos.put(desde + 19, result[15]);                           //Auth Data
+        } catch (BufferOverflowException ignored) {
+        }
     }
 
     boolean esAutentico() throws NoSuchAlgorithmException {
