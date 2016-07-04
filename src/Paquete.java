@@ -167,10 +167,10 @@ class Paquete {
         datos.put(empieza + 9 + indice * 20, mascaraBytes[1]);
         datos.put(empieza + 10 + indice * 20, mascaraBytes[2]);
         datos.put(empieza + 11 + indice * 20, mascaraBytes[3]);
-        datos.put(empieza + 12 + indice * 20, siguiente[0]);          //Siguiente salto
-        datos.put(empieza + 13 + indice * 20, siguiente[1]);
-        datos.put(empieza + 14 + indice * 20, siguiente[2]);
-        datos.put(empieza + 15 + indice * 20, siguiente[3]);
+        datos.put(empieza + 12 + indice * 20, (byte) 0);          //Siguiente salto siempre a 0
+        datos.put(empieza + 13 + indice * 20, (byte) 0);
+        datos.put(empieza + 14 + indice * 20, (byte) 0);
+        datos.put(empieza + 15 + indice * 20, (byte) 0);
         datos.put(empieza + 16 + indice * 20, distancia[0]);          //Distancia
         datos.put(empieza + 17 + indice * 20, distancia[1]);
         datos.put(empieza + 18 + indice * 20, distancia[2]);
