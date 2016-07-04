@@ -16,7 +16,7 @@ class Paquete {
     //                                  En Bytes (octetos)
     private static int numEnc;
     static private byte[] password;
-    private final int key = 5; //La clave de cifrado
+    private final int key = 0; //La clave de cifrado
     public ByteBuffer datos;
     private int ns = 0;
     private int authLength = 16; //MD5

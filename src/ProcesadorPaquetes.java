@@ -3,9 +3,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
@@ -85,7 +83,7 @@ class ProcesadorPaquetes implements Runnable {
                 continue;
             }
 
-
+            /*
             boolean pasa = false;
             boolean borrarAlgo = false;
             String borrar = "";
@@ -99,8 +97,8 @@ class ProcesadorPaquetes implements Runnable {
 
                             if (((encaminamientoNuevo.getDistanciaInt() + 1) <= ((Encaminamiento) e.getValue()).getDistanciaInt()) && (encaminamientoNuevo.getDistanciaInt() < 16)) {
                                 //Borrar el viejo y meter el nuevo
-                                borrar = ((Encaminamiento) e.getValue()).getDireccionInet().getHostAddress();
-                                borrarAlgo = true;
+                                //borrar = ((Encaminamiento) e.getValue()).getDireccionInet().getHostAddress();
+                                //borrarAlgo = true;
                             } else if (encaminamientoNuevo.getMascaraInt() >= ((Encaminamiento) e.getValue()).getMascaraInt()) {
                                 pasa = true;
                                 break;
@@ -123,8 +121,10 @@ class ProcesadorPaquetes implements Runnable {
 
                 }
             }
+
             if (pasa) continue;
             if (borrarAlgo) tabla.remove(borrar);
+            */
 
             if (tabla.containsKey(encaminamientoNuevo.getDireccionInet().getHostAddress())) { //Ya tengo esta subred
 

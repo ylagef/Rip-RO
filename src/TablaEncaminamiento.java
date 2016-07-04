@@ -29,6 +29,7 @@ class TablaEncaminamiento {
             System.out.print("\n");
         } catch (ConcurrentModificationException ignored) {
         }
+
     }
 
     int size() {
