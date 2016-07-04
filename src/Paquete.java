@@ -230,6 +230,21 @@ class Paquete {
             numEnc = tableSize;
         }
 
+
+        int fin = datos.limit();
+        for (int f = 0; f < 500; f++) {
+            if (datos.get(datos.limit() - 1 - f) != 0) {
+                fin = datos.limit() - 1 - f;
+                break;
+            }
+        }
+
+        if (datos.limit() == 504) {
+            numEnc = (fin - 43) / 20;
+        } else {
+            numEnc = (datos.limit() - 44) / 20;
+        }
+
         //Password + Data + Key ID + ADlength + Seq Number
 
         ByteBuffer encaminamientos = null;
