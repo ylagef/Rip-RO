@@ -48,7 +48,7 @@ class ProcesadorPaquetes implements Runnable {
     private void procesarPaquete(DatagramPacket receivedPacket) throws UnknownHostException, NoSuchAlgorithmException, SocketException { //Tiene que pasar el paquete (DatagramPacket) a ArrayList.
 
         if (receivedPacket.getPort() != puerto) {
-            System.out.println("Puerto incorrecto.");
+            System.out.println("Puerto incorrecto. Paquete de:" + receivedPacket.getAddress().getHostAddress() + ":" + receivedPacket.getPort());
             return;
         }
 

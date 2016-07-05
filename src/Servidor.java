@@ -60,7 +60,6 @@ class Servidor {
         for (Router destino : listaVecinos) {
             try {
                 System.out.println("Enviando desde el puerto " + sendSocket.getLocalPort() + " hacia " + destino.getIp().getHostAddress() + ":" + destino.getPuerto() + "...");
-
                 ArrayList<Encaminamiento> encaminamientos = paquete.getEncaminamientosDelPacket();
                 Paquete aux = new Paquete(Comando.RESPONSE, size);
                 int i = 0;

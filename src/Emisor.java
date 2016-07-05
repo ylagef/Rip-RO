@@ -1,5 +1,6 @@
 import java.net.InetAddress;
 import java.security.NoSuchAlgorithmException;
+import java.util.ConcurrentModificationException;
 import java.util.Map;
 
 /**
@@ -29,8 +30,12 @@ class Emisor implements Runnable {
         System.out.println("\t\t[\t\t SUBRED \t\t|\t MÉTRICA \t|\t SIGUIENTE SALTO \t]");
         tablaEncaminamiento.imprimirTabla();
         Paquete p = new Paquete(Comando.RESPONSE, tablaEncaminamiento.size());
-        for (Map.Entry<String, Encaminamiento> e : tablaEncaminamiento.getTabla().entrySet()) {
-            p.addEncaminamiento(e.getValue());
+        try {
+            for (Map.Entry<String, Encaminamiento> e : tablaEncaminamiento.getTabla().entrySet()) {
+                p.addEncaminamiento(e.getValue());
+            }
+        } catch (ConcurrentModificationException ignore) {
+
         }
         return p;
     }
