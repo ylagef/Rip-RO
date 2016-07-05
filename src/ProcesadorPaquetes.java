@@ -95,6 +95,8 @@ class ProcesadorPaquetes implements Runnable {
                             System.out.printf("Triggered update.\n");
                             encaminamientoActual.setDistancia(16);
                             continue;
+                        } else if (distanciaNueva >= 16) {
+                            continue;
                         }
                     }
                 }
