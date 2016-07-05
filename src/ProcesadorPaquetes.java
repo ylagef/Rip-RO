@@ -1,6 +1,4 @@
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,6 +8,7 @@ import java.util.concurrent.ArrayBlockingQueue;
  * Created by Yeray on 21/05/2016.
  */
 class ProcesadorPaquetes implements Runnable {
+    private static DatagramSocket sendSocket;
     private final int puerto;
     private ArrayBlockingQueue<DatagramPacket> recibidos;
     private Receptor receptor;
@@ -40,11 +39,13 @@ class ProcesadorPaquetes implements Runnable {
                 System.out.println("ERROR AL PROCESAR EL PAQUETE.");
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
+            } catch (SocketException e) {
+
             }
         }
     }
 
-    private void procesarPaquete(DatagramPacket receivedPacket) throws UnknownHostException, NoSuchAlgorithmException { //Tiene que pasar el paquete (DatagramPacket) a ArrayList.
+    private void procesarPaquete(DatagramPacket receivedPacket) throws UnknownHostException, NoSuchAlgorithmException, SocketException { //Tiene que pasar el paquete (DatagramPacket) a ArrayList.
 
         if (receivedPacket.getPort() != puerto) {
             System.out.println("Puerto incorrecto.");
@@ -67,14 +68,14 @@ class ProcesadorPaquetes implements Runnable {
         actualizarTabla(encaminamientos, new Router(receivedPacket.getAddress(), receivedPacket.getPort()));
     }
 
-    private void actualizarTabla(ArrayList<Encaminamiento> encaminamientos, Router routerEmisor) throws UnknownHostException {
+    private void actualizarTabla(ArrayList<Encaminamiento> encaminamientos, Router routerEmisor) throws UnknownHostException, SocketException {
 
         HashMap<String, Encaminamiento> tabla = tablaEncaminamiento.getTabla();
 
         Encaminamiento vecino = new Encaminamiento(InetAddress.getByName(routerEmisor.getIp().getHostAddress()), 32,
                 routerEmisor, 1);
         tabla.put(vecino.getDireccionInet().getHostAddress(), vecino);
-
+        boolean triggered = false;
         for (Encaminamiento encaminamientoNuevo : encaminamientos) {
 
             if (encaminamientoNuevo.getDireccionInet().getHostAddress().contains(receptor.getIpLocal().getHostAddress())) {
@@ -88,11 +89,15 @@ class ProcesadorPaquetes implements Runnable {
                 int distanciaNueva = encaminamientoNuevo.getDistanciaInt();
                 int distanciaActual = encaminamientoActual.getDistanciaInt();
 
+                if (distanciaActual >= 16) {
+                    continue;
+                }
+
                 if (distanciaActual < 16 && encaminamientoActual.getSiguienteRout() != null) {
                     if (encaminamientoActual.getMascaraInt() == encaminamientoNuevo.getMascaraInt()) { //Misma mascara
                         if (distanciaNueva >= 16 && encaminamientoActual.getSiguienteRout().getIp().getHostAddress().replaceAll("/", "")
                                 .contentEquals(routerEmisor.getIp().getHostAddress().replaceAll("/", ""))) { //Cambia la distancia a infinito
-                            System.out.printf("Triggered update.\n");
+                            triggered = true;
                             encaminamientoActual.setDistancia(16);
                             continue;
                         } else if (distanciaNueva >= 16) {
@@ -146,6 +151,15 @@ class ProcesadorPaquetes implements Runnable {
                 nuevo.resetTimer();
                 tabla.put(nuevo.getDireccionInet().getHostAddress(), nuevo);
             }
+        }
+
+        if (triggered == true) {
+            System.out.println("-------------> TRIGGERED UPDATE <-------------\n");
+            tablaEncaminamiento.imprimirTabla();
+            sendSocket = new DatagramSocket(puerto);
+            Emisor e = new Emisor(tablaEncaminamiento, InetAddress.getByName(emisor.getHostAddress()));
+            e.run();
+            sendSocket.close();
         }
     }
 

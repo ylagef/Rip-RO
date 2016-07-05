@@ -61,8 +61,7 @@ class TablaEncaminamiento {
                 if ((diferencia >= 20) & (diferencia <= 30)) { //TODO poner a 60 y 100 al acabar
                     //Distancia a este encaminamiento infinito (16)
                     encaminamientoActual.setDistancia(16);
-                    System.out.println("Triggered Update");
-                } else if (diferencia > 100) {
+                } else if (diferencia > 30) {
                     //Lo borra de la tabla
                     tabla.remove(e.getKey());
                 }
