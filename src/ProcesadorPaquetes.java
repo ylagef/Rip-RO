@@ -2,6 +2,7 @@ import java.net.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
@@ -171,17 +172,30 @@ class ProcesadorPaquetes implements Runnable {
                 nuevo.resetTimer();
                 tabla.put(nuevo.getDireccionInet().getHostAddress(), nuevo);
             }
+
+
         }
 
-        if (triggered == true) {
-            System.out.println("\n\n        -----------------------> TRIGGERED UPDATE <-----------------------");
-            tablaEncaminamiento.imprimirTabla();
-            System.out.println("        ---------------------> FIN TRIGGERED UPDATE <-----------------------\n\n");
-            sendSocket = new DatagramSocket(puerto);
-            Emisor e = new Emisor(tablaEncaminamiento, InetAddress.getByName(emisor.getHostAddress()));
-            e.run();
-            sendSocket.close();
+        for (Map.Entry<String, Encaminamiento> e : tabla.entrySet()) {
+            if (new TablaEncaminamiento().compruebaEsteTimeout(e.getValue()) == 1) {
+                triggered = true;
+                break;
+            }
         }
+
+        if (triggered) enviarTriggeredUpdate();
+
+    }
+
+    private void enviarTriggeredUpdate() throws SocketException, UnknownHostException {
+        System.out.println("\n\n        -----------------------> TRIGGERED UPDATE <-----------------------");
+        tablaEncaminamiento.imprimirTabla();
+        System.out.println("        ---------------------> FIN TRIGGERED UPDATE <-----------------------\n\n");
+
+        sendSocket = new DatagramSocket(puerto);
+        Emisor e = new Emisor(tablaEncaminamiento, InetAddress.getByName(emisor.getHostAddress()));
+        e.run();
+        sendSocket.close();
     }
 
     private boolean mismaSubred(Encaminamiento e1, Encaminamiento e2) throws UnknownHostException {

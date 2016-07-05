@@ -72,4 +72,21 @@ class TablaEncaminamiento {
 
     }
 
+    public int compruebaEsteTimeout(Encaminamiento e) {
+        /* Comprueba que los tiempos no hayan pasado */
+
+        Encaminamiento encaminamientoActual = e;
+
+        long tiempoInsercion = encaminamientoActual.getTimer();
+
+        long diferencia = (long) ((System.nanoTime() - tiempoInsercion) / (10e8));
+
+        if ((diferencia >= 20) & (diferencia <= 30)) { //TODO poner a 60 y 100 al acabar
+            return 1;
+        } else if (diferencia > 30) {
+            return 2;
+        }
+        return 0;
+
+    }
 }
