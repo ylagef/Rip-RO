@@ -53,7 +53,7 @@ class ProcesadorPaquetes implements Runnable {
 
         byte[] p = receivedPacket.getData();
 
-        Paquete recibido = new Paquete(p, receivedPacket);
+        Paquete recibido = new Paquete(p);
 
         //Autenticar
         if (recibido.esAutentico()) {

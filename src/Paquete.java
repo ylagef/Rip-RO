@@ -1,4 +1,3 @@
-import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.BufferOverflowException;
@@ -20,7 +19,6 @@ class Paquete {
     static private byte[] password;
     private final int key = 0; //La clave de cifrado
     public ByteBuffer datos;
-    DatagramPacket received;
     private int ns = 0;
     private int authLength = 16; //MD5
     private int tableSize;
@@ -79,8 +77,7 @@ class Paquete {
         datos.put(desde + 3, (byte) 0x01);                          //No usado
     }
 
-    Paquete(byte[] datagramPacket, DatagramPacket received) {
-        this.received = received;
+    Paquete(byte[] datagramPacket) {
         datos = ByteBuffer.allocate(datagramPacket.length);
         datos = ByteBuffer.wrap(datagramPacket);
         setVars();
@@ -170,10 +167,10 @@ class Paquete {
         datos.put(empieza + 9 + indice * 20, mascaraBytes[1]);
         datos.put(empieza + 10 + indice * 20, mascaraBytes[2]);
         datos.put(empieza + 11 + indice * 20, mascaraBytes[3]);
-        datos.put(empieza + 12 + indice * 20, (byte) 0);          //Siguiente salto siempre a 0
-        datos.put(empieza + 13 + indice * 20, (byte) 0);
-        datos.put(empieza + 14 + indice * 20, (byte) 0);
-        datos.put(empieza + 15 + indice * 20, (byte) 0);
+        datos.put(empieza + 12 + indice * 20, siguiente[0]);          //Siguiente salto
+        datos.put(empieza + 13 + indice * 20, siguiente[1]);
+        datos.put(empieza + 14 + indice * 20, siguiente[2]);
+        datos.put(empieza + 15 + indice * 20, siguiente[3]);
         datos.put(empieza + 16 + indice * 20, distancia[0]);          //Distancia
         datos.put(empieza + 17 + indice * 20, distancia[1]);
         datos.put(empieza + 18 + indice * 20, distancia[2]);
@@ -201,12 +198,9 @@ class Paquete {
                 } catch (IllegalArgumentException e) {
                     continue;
                 }
-                Router siguiente;
-                if (received == null) {
-                    siguiente = new Router(InetAddress.getByAddress(new byte[]{datos.get(j * 20 + 16), datos.get(j * 20 + 17), datos.get(j * 20 + 18), datos.get(j * 20 + 19)}));
-                } else {
-                    siguiente = new Router(received.getAddress(), received.getPort());
-                }
+
+
+                Router siguiente = new Router(InetAddress.getByAddress(new byte[]{datos.get(j * 20 + 16), datos.get(j * 20 + 17), datos.get(j * 20 + 18), datos.get(j * 20 + 19)}));
 
                 int distancia = datos.get(j * 20 + 23);
                 numEnc++;
