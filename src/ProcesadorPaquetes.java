@@ -100,7 +100,6 @@ class ProcesadorPaquetes implements Runnable {
 
                 if (encaminamientoActual.getSiguienteRout() != null) {
                     if (encaminamientoActual.getSiguienteRout().getIp().getHostAddress().replaceAll("/", "").contentEquals(vecino.getDireccionInet().getHostAddress().replaceAll("/", ""))) {
-                        System.out.println("Actualiza " + vecino.getDireccionInet().getHostAddress());
                         int distanciaNueva = encaminamientoNuevo.getDistanciaInt();
                         int distanciaActual = encaminamientoActual.getDistanciaInt();
 
