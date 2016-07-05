@@ -29,10 +29,10 @@ class Servidor {
     e inicia el envío de la tabla.
      */
 
+    public static ArrayList<Router> listaVecinos = new ArrayList<>();
     static DatagramSocket receptionSocket;
     static int ns = 0;
     private static DatagramSocket sendSocket;
-    private static ArrayList<Router> listaVecinos = new ArrayList<>();
     private InetAddress ipLocal;
     private TablaEncaminamiento tablaEncaminamiento = new TablaEncaminamiento();
 

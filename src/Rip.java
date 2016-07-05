@@ -54,7 +54,8 @@ public class Rip {
             while (en.hasMoreElements()) {
                 NetworkInterface i = (NetworkInterface) en.nextElement();
                 if (i.getName().contains("eth0")) {
-                    for (Enumeration en2 = i.getInetAddresses(); en2.hasMoreElements(); ) {
+                    Enumeration en2 = i.getInetAddresses();
+                    while (en2.hasMoreElements()) {
                         InetAddress addr = (InetAddress) en2.nextElement();
                         if (!addr.isLoopbackAddress()) {
                             if (addr instanceof Inet4Address) {

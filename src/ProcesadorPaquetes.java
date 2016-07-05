@@ -22,6 +22,7 @@ class ProcesadorPaquetes implements Runnable {
         this.tablaEncaminamiento = tablaEncaminamiento;
         this.emisor = emisor;
         this.puerto = puerto;
+
     }
 
     @Override
@@ -75,8 +76,19 @@ class ProcesadorPaquetes implements Runnable {
         Encaminamiento vecino = new Encaminamiento(InetAddress.getByName(routerEmisor.getIp().getHostAddress()), 32,
                 routerEmisor, 1);
         tabla.put(vecino.getDireccionInet().getHostAddress(), vecino);
+
         boolean triggered = false;
         for (Encaminamiento encaminamientoNuevo : encaminamientos) {
+
+            ArrayList<Router> vecinos = Servidor.listaVecinos;
+            boolean esVecino = false;
+            for (Router neigh : vecinos) {
+                if (encaminamientoNuevo.getDireccionInet().getHostAddress().replaceAll("/", "").contentEquals(neigh.getIp().getHostAddress().replaceAll("/", "")) && encaminamientoNuevo.getMascaraInt() == 32) {
+                    esVecino = true;
+                    break;
+                }
+            }
+            if (esVecino) continue;
 
             if (encaminamientoNuevo.getDireccionInet().getHostAddress().contains(receptor.getIpLocal().getHostAddress())) {
                 continue;
@@ -86,63 +98,67 @@ class ProcesadorPaquetes implements Runnable {
                 Encaminamiento encaminamientoActual =
                         tabla.get(encaminamientoNuevo.getDireccionInet().getHostAddress()); //El de la tabla actual
 
-                int distanciaNueva = encaminamientoNuevo.getDistanciaInt();
-                int distanciaActual = encaminamientoActual.getDistanciaInt();
+                if (encaminamientoActual.getSiguienteRout() != null) {
+                    if (encaminamientoActual.getSiguienteRout().getIp().getHostAddress().replaceAll("/", "").contentEquals(vecino.getDireccionInet().getHostAddress().replaceAll("/", ""))) {
+                        System.out.println("Actualiza " + vecino.getDireccionInet().getHostAddress());
+                        int distanciaNueva = encaminamientoNuevo.getDistanciaInt();
+                        int distanciaActual = encaminamientoActual.getDistanciaInt();
 
-                if (distanciaActual >= 16) {
-                    continue;
-                }
-
-                if (distanciaActual < 16 && encaminamientoActual.getSiguienteRout() != null) {
-                    if (encaminamientoActual.getMascaraInt() == encaminamientoNuevo.getMascaraInt()) { //Misma mascara
-                        if (distanciaNueva >= 16 && encaminamientoActual.getSiguienteRout().getIp().getHostAddress().replaceAll("/", "")
-                                .contentEquals(routerEmisor.getIp().getHostAddress().replaceAll("/", ""))) { //Cambia la distancia a infinito
-                            triggered = true;
-                            encaminamientoActual.setDistancia(16);
-                            continue;
-                        } else if (distanciaNueva >= 16) {
+                        if (distanciaActual >= 16) {
                             continue;
                         }
+
+                        if (distanciaActual < 16 && encaminamientoActual.getSiguienteRout() != null) {
+                            if (encaminamientoActual.getMascaraInt() == encaminamientoNuevo.getMascaraInt()) { //Misma mascara
+                                if (distanciaNueva >= 16 && encaminamientoActual.getSiguienteRout().getIp().getHostAddress().replaceAll("/", "")
+                                        .contentEquals(routerEmisor.getIp().getHostAddress().replaceAll("/", ""))) { //Cambia la distancia a infinito
+                                    triggered = true;
+                                    encaminamientoActual.setDistancia(16);
+                                    continue;
+                                } else if (distanciaNueva >= 16) {
+                                    continue;
+                                }
+                            }
+                        }
+
+
+                        if (encaminamientoActual.getDireccionInet().getHostAddress().contains(receptor.getIpLocal().getHostAddress())) {
+                            continue;
+                        }
+
+                        if (encaminamientoActual.getDistanciaInt() == 1 && encaminamientoActual.getSiguiente() == null) {
+                            encaminamientoActual.resetTimer();
+                            continue;
+                        }
+
+                        if ((encaminamientoActual.getDireccionInet().getHostAddress().replaceAll("/", "").
+                                contains(encaminamientoNuevo.getDireccionInet().getHostAddress().replaceAll("/", ""))) &&
+                                (encaminamientoActual.getMascaraInt() != encaminamientoNuevo.getMascaraInt())) {
+
+                            Encaminamiento nuevo = new Encaminamiento(encaminamientoNuevo.getDireccionInet(),
+                                    encaminamientoNuevo.getMascaraInt(), routerEmisor,
+                                    (encaminamientoNuevo.getDistanciaInt() + 1));
+
+                            nuevo.resetTimer();
+                            String nme = encaminamientoNuevo.getDireccionInet().getHostAddress() + "/" + encaminamientoNuevo.getMascaraInt();
+                            tabla.put(nme, nuevo);
+                            encaminamientoActual.resetTimer();
+                            continue;
+                        }
+
+                        if ((distanciaNueva + 1) < distanciaActual) {
+                            //Se cambia el encaminamiento
+
+                            tabla.remove(encaminamientoActual.getDireccionInet().getHostAddress());
+                            Encaminamiento nuevo = new Encaminamiento(encaminamientoNuevo.getDireccionInet(),
+                                    encaminamientoNuevo.getMascaraInt(), routerEmisor,
+                                    (encaminamientoNuevo.getDistanciaInt() + 1));
+                            nuevo.resetTimer(); //Pone el timer a la hora actual.
+                            tabla.put(encaminamientoNuevo.getDireccionInet().getHostAddress(), nuevo);
+                        }
+                        encaminamientoActual.resetTimer(); //Se reinicia el tiempo.
                     }
                 }
-
-
-                if (encaminamientoActual.getDireccionInet().getHostAddress().contains(receptor.getIpLocal().getHostAddress())) {
-                    continue;
-                }
-
-                if (encaminamientoActual.getDistanciaInt() == 1 && encaminamientoActual.getSiguiente() == null) {
-                    encaminamientoActual.resetTimer();
-                    continue;
-                }
-
-                if ((encaminamientoActual.getDireccionInet().getHostAddress().replaceAll("/", "").
-                        contains(encaminamientoNuevo.getDireccionInet().getHostAddress().replaceAll("/", ""))) &&
-                        (encaminamientoActual.getMascaraInt() != encaminamientoNuevo.getMascaraInt())) {
-
-                    Encaminamiento nuevo = new Encaminamiento(encaminamientoNuevo.getDireccionInet(),
-                            encaminamientoNuevo.getMascaraInt(), routerEmisor,
-                            (encaminamientoNuevo.getDistanciaInt() + 1));
-
-                    nuevo.resetTimer();
-                    String nme = encaminamientoNuevo.getDireccionInet().getHostAddress() + "/" + encaminamientoNuevo.getMascaraInt();
-                    tabla.put(nme, nuevo);
-                    encaminamientoActual.resetTimer();
-                    continue;
-                }
-
-                if ((distanciaNueva + 1) < distanciaActual) {
-                    //Se cambia el encaminamiento
-
-                    tabla.remove(encaminamientoActual.getDireccionInet().getHostAddress());
-                    Encaminamiento nuevo = new Encaminamiento(encaminamientoNuevo.getDireccionInet(),
-                            encaminamientoNuevo.getMascaraInt(), routerEmisor,
-                            (encaminamientoNuevo.getDistanciaInt() + 1));
-                    nuevo.resetTimer(); //Pone el timer a la hora actual.
-                    tabla.put(encaminamientoNuevo.getDireccionInet().getHostAddress(), nuevo);
-                }
-                encaminamientoActual.resetTimer(); //Se reinicia el tiempo.
-
             } else {
                 //No tengo la subred. Añade a la tabla el encaminamiento
                 if (encaminamientoNuevo.getDistanciaInt() >= 16) {
