@@ -13,7 +13,7 @@ class Encaminamiento {
     private InetAddress direccionInet;
     private Router siguienteRout;
     private int mascaraInt;
-    private int distanciaInt = 1; //Las subredes conectadas están a distancia 0 (directamente conectadas) al router.
+    private int distanciaInt = 1;
     //Para crear correctamente el paquete de bytes
     private byte[] direccion;
     private byte[] mascara;

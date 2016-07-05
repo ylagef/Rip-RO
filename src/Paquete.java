@@ -1,3 +1,4 @@
+import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.BufferOverflowException;
@@ -19,6 +20,7 @@ class Paquete {
     static private byte[] password;
     private final int key = 0; //La clave de cifrado
     public ByteBuffer datos;
+    DatagramPacket received;
     private int ns = 0;
     private int authLength = 16; //MD5
     private int tableSize;
@@ -77,7 +79,8 @@ class Paquete {
         datos.put(desde + 3, (byte) 0x01);                          //No usado
     }
 
-    Paquete(byte[] datagramPacket) {
+    Paquete(byte[] datagramPacket, DatagramPacket received) {
+        this.received = received;
         datos = ByteBuffer.allocate(datagramPacket.length);
         datos = ByteBuffer.wrap(datagramPacket);
         setVars();
@@ -198,9 +201,12 @@ class Paquete {
                 } catch (IllegalArgumentException e) {
                     continue;
                 }
-
-
-                Router siguiente = new Router(InetAddress.getByAddress(new byte[]{datos.get(j * 20 + 16), datos.get(j * 20 + 17), datos.get(j * 20 + 18), datos.get(j * 20 + 19)}));
+                Router siguiente;
+                if (received == null) {
+                    siguiente = new Router(InetAddress.getByAddress(new byte[]{datos.get(j * 20 + 16), datos.get(j * 20 + 17), datos.get(j * 20 + 18), datos.get(j * 20 + 19)}));
+                } else {
+                    siguiente = new Router(received.getAddress(), received.getPort());
+                }
 
                 int distancia = datos.get(j * 20 + 23);
                 numEnc++;

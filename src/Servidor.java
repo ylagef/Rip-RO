@@ -66,6 +66,7 @@ class Servidor {
                 int i = 0;
                 for (Encaminamiento encaminamiento : encaminamientos) {
                     i++;
+
                     if (encaminamiento.getSiguienteRout().getIp().getHostAddress().replaceAll("/", "").contains(destino.getIp().getHostAddress().replaceAll("/", ""))) {
                         aux.addEncaminamiento(encaminamiento);
                         aux.datos.put((i * 20 + 23), (byte) 16);
