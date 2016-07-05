@@ -143,7 +143,12 @@ class ProcesadorPaquetes implements Runnable {
                 }
                 encaminamientoActual.resetTimer(); //Se reinicia el tiempo.
 
-            } else { //No tengo la subred. Añade a la tabla el encaminamiento
+            } else {
+                //No tengo la subred. Añade a la tabla el encaminamiento
+                if (encaminamientoNuevo.getDistanciaInt() >= 16) {
+                    continue;
+                }
+
                 Encaminamiento nuevo = new Encaminamiento(encaminamientoNuevo.getDireccionInet(),
                         encaminamientoNuevo.getMascaraInt(), routerEmisor,
                         (encaminamientoNuevo.getDistanciaInt() + 1));
@@ -154,8 +159,9 @@ class ProcesadorPaquetes implements Runnable {
         }
 
         if (triggered == true) {
-            System.out.println("-------------> TRIGGERED UPDATE <-------------\n");
+            System.out.println("\n\n        -----------------------> TRIGGERED UPDATE <-----------------------");
             tablaEncaminamiento.imprimirTabla();
+            System.out.println("        ---------------------> FIN TRIGGERED UPDATE <-----------------------\n\n");
             sendSocket = new DatagramSocket(puerto);
             Emisor e = new Emisor(tablaEncaminamiento, InetAddress.getByName(emisor.getHostAddress()));
             e.run();
